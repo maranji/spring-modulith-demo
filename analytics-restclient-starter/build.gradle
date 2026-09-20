@@ -1,0 +1,23 @@
+dependencies {
+    // Implementa lo stesso contratto di analytics-spring-boot-starter, ma
+    // parlando via HTTP con un servizio Analytics esterno invece di
+    // calcolare in-process. 'implementation': nulla nella superficie
+    // pubblica di questo starter ri-espone questi tipi ai propri consumer.
+    implementation project(':analytics-api')
+
+    // Serve solo per tradurre le risposte di errore HTTP nelle stesse
+    // eccezioni di dominio usate dall'implementazione locale (vedi
+    // RemoteAnalyticsClient): non è un accoppiamento all'implementazione
+    // di market-data, solo al suo contratto, già a dipendenza zero.
+    implementation project(':market-data-api')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework:spring-web'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: financial-analytics-poc
+  datasource:
+    url: jdbc:h2:mem:modulith-poc;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: true
+
+# Configurazione del modulo market-data (vedi MarketDataProperties).
+# Per leggere da una cartella reale sul disco invece che dal classpath:
+#   market-data.directory: file:/opt/market-data/
+market-data:
+  directory: classpath:data/
+  refresh-interval: PT5M
+  refresh-enabled: true
+
+# Usata solo se app è compilata con -PanalyticsMode=remote (vedi
+# app/build.gradle): URL base del servizio Analytics esterno.
+analytics:
+  remote:
+    base-url: http://localhost:8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.example: INFO

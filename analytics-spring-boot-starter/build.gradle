@@ -1,0 +1,28 @@
+dependencies {
+    // Implementazione in-process del contratto analytics-api: registra gli
+    // handler di AverageQuery/StandardDeviationQuery, calcolando a partire
+    // dai prezzi ottenuti inviando un FindPricesQuery al MessageBus.
+    // 'implementation', non 'api': nulla nella superficie pubblica di
+    // questo starter (solo AnalyticsAutoConfiguration) ri-espone questi
+    // tipi ai propri consumer.
+    implementation project(':analytics-api')
+
+    // Serve solo per il tipo FindPricesQuery/PricePoint usati internamente
+    // per interrogare il MessageBus: NON è più una dipendenza
+    // dall'implementazione di market-data (non lo è mai stata), ma ora
+    // nemmeno dalla sua interfaccia di servizio — solo dal messaggio.
+    implementation project(':market-data-api')
+
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-autoconfigure'
+
+    // Fornisce @ApplicationModuleListener, usata per invalidare la cache
+    // quando il modulo market-data ricarica i dati.
+    implementation 'org.springframework.modulith:spring-modulith-events-api'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
+}

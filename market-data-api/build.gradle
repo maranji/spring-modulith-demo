@@ -1,0 +1,9 @@
+// Modulo "contratto": la sola dipendenza è messaging-api, anch'esso a
+// dipendenza zero (l'astrazione generica di message bus). Nessuna
+// dipendenza da Spring, Jackson o da qualunque implementazione.
+dependencies {
+    api project(':messaging-api')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+}

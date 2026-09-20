@@ -1,0 +1,21 @@
+dependencies {
+    // Implementazione in-process del contratto market-data-api: legge i
+    // prezzi da file JSON su disco e registra i tre MessageHandler
+    // (FindPricesQuery, AvailableAssetsQuery, RefreshMarketDataCommand).
+    // 'implementation', non 'api': nulla nella superficie pubblica di
+    // questo starter (solo MarketDataAutoConfiguration) ri-espone questi
+    // tipi ai propri consumer — chi li usa (es. "app") dipende da
+    // market-data-api direttamente, non transitivamente da qui.
+    implementation project(':market-data-api')
+
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
+}

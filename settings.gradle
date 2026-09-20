@@ -1,0 +1,10 @@
+rootProject.name = 'spring-modulith-poc'
+
+include 'messaging-api'
+include 'messaging-spring-boot-starter'
+include 'market-data-api'
+include 'market-data-spring-boot-starter'
+include 'analytics-api'
+include 'analytics-spring-boot-starter'
+include 'analytics-restclient-starter'
+include 'app'

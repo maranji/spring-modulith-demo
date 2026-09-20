@@ -1,0 +1,63 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+// Quale implementazione gestisce AverageQuery/StandardDeviationQuery:
+// 'local' (in-process, default) oppure 'remote' (un servizio Analytics
+// esterno via HTTP). Esempio:  ./gradlew :app:bootRun -PanalyticsMode=remote
+//
+// Il codice Java di 'app' non cambia in nessuno dei due casi: non importa
+// né conosce alcuna interfaccia di servizio di Analytics, solo i messaggi
+// (analytics-api) e il MessageBus (messaging-api) a cui li invia.
+def analyticsMode = (findProperty('analyticsMode') ?: 'local').toString()
+
+dependencies {
+    // Contratti: tutto ciò che 'app' conosce a compile-time — i messaggi di
+    // richiesta/risposta e il bus generico, mai un'interfaccia di servizio
+    // di un modulo di dominio. Queste righe non cambiano MAI, qualunque
+    // sia il deployment scelto per market-data o analytics.
+    implementation project(':messaging-api')
+    implementation project(':market-data-api')
+    implementation project(':analytics-api')
+
+    // Message bus in-process: raccoglie automaticamente tutti gli handler
+    // registrati dai moduli/starter presenti sul classpath.
+    implementation project(':messaging-spring-boot-starter')
+
+    // Implementazione di Market Data: in questa demo sempre locale.
+    // Lo stesso schema usato sotto per Analytics si applicherebbe qui se un
+    // giorno anche Market Data venisse estratto come servizio a parte.
+    implementation project(':market-data-spring-boot-starter')
+
+    // Implementazione di Analytics: locale (default) o remota, a seconda
+    // di -PanalyticsMode. Sono dipendenze Gradle mutuamente esclusive: mai
+    // entrambe insieme, altrimenti ci sarebbero due handler per lo stesso
+    // messaggio.
+    if (analyticsMode == 'remote') {
+        implementation project(':analytics-restclient-starter')
+    } else {
+        implementation project(':analytics-spring-boot-starter')
+    }
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Event Publication Registry su JDBC: garanzia di consegna degli eventi
+    // applicativi anche senza un broker esterno. Rilevante solo quando
+    // market-data gira in-process (pubblica MarketDataRefreshed).
+    implementation 'org.springframework.modulith:spring-modulith-starter-jdbc'
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
+}
+
+bootJar {
+    archiveFileName = 'app.jar'
+}
+
+tasks.register('printAnalyticsMode') {
+    doLast {
+        println "analyticsMode = ${analyticsMode}"
+    }
+}
