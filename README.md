@@ -10,7 +10,7 @@ POC che dimostra un modular monolith con **Spring Modulith**, gestito con
 ## 1. Struttura
 
 ```
-spring-modulith-poc/
+spring-modulith-demo/
 ├── messaging-api/                     ← CONTRATTO del trasporto (zero dipendenze)
 ├── messaging-spring-boot-starter/     ← message bus in-process
 ├── market-data-api/                   ← CONTRATTO Market Data: messaggi + dati

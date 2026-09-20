@@ -1,4 +1,4 @@
-rootProject.name = 'spring-modulith-poc'
+rootProject.name = 'spring-modulith-demo'
 
 include 'messaging-api'
 include 'messaging-spring-boot-starter'
