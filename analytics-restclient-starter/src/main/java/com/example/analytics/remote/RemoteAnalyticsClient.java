@@ -11,17 +11,8 @@ import com.example.analytics.StatisticType;
 import com.example.marketdata.AssetNotFoundException;
 
 /**
- * Chiama un servizio Analytics esterno via HTTP, invece di calcolare
- * in-process. Chiama esattamente lo stesso contratto REST già esposto da
- * {@code PriceStatisticsController} nel modulo "app": se in futuro il
- * modulo Analytics (con la sua dipendenza da Market Data) viene estratto
- * come servizio indipendente, questa classe (avvolta dai due
- * {@code MessageHandler} di questo package) è l'adapter lato client che lo
- * sostituisce nell'applicazione originale.
- *
- * <p>Traduce gli errori HTTP (404, 422) nelle stesse eccezioni di dominio
- * sollevate dall'implementazione locale, in modo che il comportamento sia
- * indistinguibile per chi chiama.
+ * Translates HTTP 404/422 into the same domain exceptions as the local
+ * implementation, so callers can't tell the two apart.
  */
 class RemoteAnalyticsClient {
 

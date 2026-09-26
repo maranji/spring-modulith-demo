@@ -21,10 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Test unitario dell'implementazione: nessun contesto Spring, solo
- * costruzione diretta con collaboratori reali/mock.
- */
 class MarketDataStoreTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());

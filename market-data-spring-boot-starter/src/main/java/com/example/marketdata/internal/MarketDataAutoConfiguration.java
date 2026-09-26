@@ -11,19 +11,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.marketdata.FindPricesQuery;
-import com.example.messaging.MessageBus;
 
 /**
- * Auto-configurazione dello starter "market-data". Basta aggiungere la
- * dipendenza dal modulo al classpath di un'applicazione Spring Boot
- * (insieme a {@code messaging-spring-boot-starter}, per avere un
- * {@link MessageBus}) per ottenere i tre handler pienamente funzionanti,
- * senza ulteriore configurazione Java (solo, opzionalmente, le proprietà
- * {@code market-data.*} in application.yml).
- *
- * <p>Non serve dichiarare un bean {@link ResourcePatternResolver}: ogni
- * {@code ApplicationContext} di Spring implementa già questa interfaccia ed
- * è iniettabile direttamente.
+ * No {@link ResourcePatternResolver} bean is needed: every
+ * {@code ApplicationContext} already implements it.
  */
 @AutoConfiguration
 @EnableScheduling

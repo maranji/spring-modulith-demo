@@ -8,32 +8,17 @@ import java.util.Locale;
 import com.example.analytics.InsufficientDataException;
 import com.example.analytics.PriceStatistics;
 import com.example.analytics.StatisticType;
+import com.example.contractbus.ContractBus;
 import com.example.marketdata.FindPricesQuery;
 import com.example.marketdata.PricePoint;
-import com.example.messaging.MessageBus;
 
-/**
- * Calcolo delle statistiche sul prezzo di un asset. Ottiene i prezzi
- * inviando un {@link FindPricesQuery} al {@link MessageBus}, non chiamando
- * un'interfaccia di servizio del modulo Market Data: non sa, e non deve
- * sapere, se quel messaggio è gestito da un'implementazione locale (file
- * su disco), da un database o da un servizio esterno.
- *
- * <p>I risultati sono mantenuti in {@link AnalyticsCache}, svuotata da
- * {@link MarketDataChangeListener} quando il modulo Market Data pubblica un
- * evento {@code MarketDataRefreshed}.
- *
- * <p>Invocata solo dagli handler di questo package ({@link AverageQueryHandler},
- * {@link StandardDeviationQueryHandler}): non implementa alcuna interfaccia
- * pubblica, per lo stesso motivo per cui Market Data non ne implementa una.
- */
 class AnalyticsCalculationService {
 
-    private final MessageBus messageBus;
+    private final ContractBus contractBus;
     private final AnalyticsCache cache;
 
-    AnalyticsCalculationService(MessageBus messageBus, AnalyticsCache cache) {
-        this.messageBus = messageBus;
+    AnalyticsCalculationService(ContractBus contractBus, AnalyticsCache cache) {
+        this.contractBus = contractBus;
         this.cache = cache;
     }
 
@@ -52,9 +37,8 @@ class AnalyticsCalculationService {
     }
 
     private PriceStatistics doCompute(String asset, LocalDate from, LocalDate to, StatisticType type) {
-        List<BigDecimal> prices = messageBus.send(new FindPricesQuery(asset, from, to)).stream()
-                .map(PricePoint::price)
-                .toList();
+        List<PricePoint> pricePoints = contractBus.send(new FindPricesQuery(asset, from, to));
+        List<BigDecimal> prices = pricePoints.stream().map(PricePoint::price).toList();
 
         int minimumSampleSize = type == StatisticType.STANDARD_DEVIATION ? 2 : 1;
         if (prices.size() < minimumSampleSize) {

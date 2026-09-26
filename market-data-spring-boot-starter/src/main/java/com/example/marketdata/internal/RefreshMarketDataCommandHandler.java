@@ -1,9 +1,9 @@
 package com.example.marketdata.internal;
 
+import com.example.contractbus.ContractHandler;
 import com.example.marketdata.RefreshMarketDataCommand;
-import com.example.messaging.MessageHandler;
 
-class RefreshMarketDataCommandHandler implements MessageHandler<RefreshMarketDataCommand, Void> {
+class RefreshMarketDataCommandHandler implements ContractHandler<RefreshMarketDataCommand, Void> {
 
     private final MarketDataStore store;
 

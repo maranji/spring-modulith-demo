@@ -17,10 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Verifica che i tre handler siano semplici delegati verso {@link MarketDataStore}
- * — la logica vera è già coperta da {@link MarketDataStoreTest}.
- */
+/** Handlers are thin delegates: the real logic is covered by {@link MarketDataStoreTest}. */
 class MarketDataQueryHandlersTest {
 
     private final MarketDataStore store = mock(MarketDataStore.class);

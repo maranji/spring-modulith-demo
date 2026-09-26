@@ -2,11 +2,11 @@ package com.example.marketdata.internal;
 
 import java.util.List;
 
+import com.example.contractbus.ContractHandler;
 import com.example.marketdata.FindPricesQuery;
 import com.example.marketdata.PricePoint;
-import com.example.messaging.MessageHandler;
 
-class FindPricesQueryHandler implements MessageHandler<FindPricesQuery, List<PricePoint>> {
+class FindPricesQueryHandler implements ContractHandler<FindPricesQuery, List<PricePoint>> {
 
     private final MarketDataStore store;
 

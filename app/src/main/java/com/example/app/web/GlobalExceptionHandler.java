@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.example.analytics.InsufficientDataException;
 import com.example.marketdata.AssetNotFoundException;
 
-/**
- * Traduce le eccezioni di dominio (definite nei moduli Market Data e
- * Analytics) in risposte HTTP in formato RFC 7807 (Problem Details).
- */
 @RestControllerAdvice
 class GlobalExceptionHandler {
 

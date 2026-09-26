@@ -1,8 +1,0 @@
-// Modulo "contratto" del trasporto: nessuna dipendenza, nemmeno da Spring.
-// È l'astrazione generica di message bus descritta nel documento di
-// riferimento (§2, "Trasporto astratto dietro un'interfaccia"), applicata
-// alla comunicazione sincrona richiesta/risposta.
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.assertj:assertj-core'
-}

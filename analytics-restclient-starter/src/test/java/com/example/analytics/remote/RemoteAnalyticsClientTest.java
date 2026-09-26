@@ -21,12 +21,6 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-/**
- * Verifica che l'adapter HTTP parli lo stesso contratto REST esposto da
- * {@code PriceStatisticsController} nel modulo "app", senza dover avviare
- * un vero servizio esterno: qui il "servizio esterno" è simulato con
- * {@link MockRestServiceServer}.
- */
 class RemoteAnalyticsClientTest {
 
     private static final String BASE_URL = "http://analytics.example.test";

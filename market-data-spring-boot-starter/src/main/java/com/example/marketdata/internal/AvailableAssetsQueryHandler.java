@@ -2,10 +2,10 @@ package com.example.marketdata.internal;
 
 import java.util.Set;
 
+import com.example.contractbus.ContractHandler;
 import com.example.marketdata.AvailableAssetsQuery;
-import com.example.messaging.MessageHandler;
 
-class AvailableAssetsQueryHandler implements MessageHandler<AvailableAssetsQuery, Set<String>> {
+class AvailableAssetsQueryHandler implements ContractHandler<AvailableAssetsQuery, Set<String>> {
 
     private final MarketDataStore store;
 

@@ -7,15 +7,9 @@ import org.springframework.modulith.events.ApplicationModuleListener;
 import com.example.marketdata.MarketDataRefreshed;
 
 /**
- * Invalida la cache di Analytics ogni volta che il modulo Market Data
- * ricarica i prezzi da disco.
- *
- * <p>È una classe a sé, senza interfacce: {@code @ApplicationModuleListener}
- * comporta esecuzione asincrona (è meta-annotata con {@code @Async}), e Spring
- * applica quel comportamento creando un proxy CGLIB della classe concreta.
- * Tenendo questo listener separato dagli handler dei messaggi (che
- * implementano {@code MessageHandler}, un'interfaccia) evitiamo qualunque
- * ambiguità tra proxy JDK basati su interfaccia e proxy CGLIB basati su classe.
+ * A separate class with no interfaces: {@code @ApplicationModuleListener} is
+ * {@code @Async}, so Spring proxies this class with CGLIB. Keeping it apart from
+ * the handlers (which implement {@code ContractHandler}) avoids mixing JDK and CGLIB proxies.
  */
 class MarketDataChangeListener {
 

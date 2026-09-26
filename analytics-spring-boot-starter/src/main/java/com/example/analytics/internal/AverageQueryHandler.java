@@ -2,9 +2,9 @@ package com.example.analytics.internal;
 
 import com.example.analytics.AverageQuery;
 import com.example.analytics.PriceStatistics;
-import com.example.messaging.MessageHandler;
+import com.example.contractbus.ContractHandler;
 
-class AverageQueryHandler implements MessageHandler<AverageQuery, PriceStatistics> {
+class AverageQueryHandler implements ContractHandler<AverageQuery, PriceStatistics> {
 
     private final AnalyticsCalculationService service;
 

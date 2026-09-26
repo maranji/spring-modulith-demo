@@ -13,11 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Verifica che i due handler siano semplici delegati verso
- * {@link AnalyticsCalculationService} — la logica vera è già coperta da
- * {@link AnalyticsCalculationServiceTest}.
- */
+/** Handlers are thin delegates: the real logic is covered by {@link AnalyticsCalculationServiceTest}. */
 class AnalyticsQueryHandlersTest {
 
     private static final LocalDate FROM = LocalDate.of(2026, 1, 1);

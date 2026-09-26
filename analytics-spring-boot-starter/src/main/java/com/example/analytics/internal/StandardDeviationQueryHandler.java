@@ -2,9 +2,9 @@ package com.example.analytics.internal;
 
 import com.example.analytics.PriceStatistics;
 import com.example.analytics.StandardDeviationQuery;
-import com.example.messaging.MessageHandler;
+import com.example.contractbus.ContractHandler;
 
-class StandardDeviationQueryHandler implements MessageHandler<StandardDeviationQuery, PriceStatistics> {
+class StandardDeviationQueryHandler implements ContractHandler<StandardDeviationQuery, PriceStatistics> {
 
     private final AnalyticsCalculationService service;
 

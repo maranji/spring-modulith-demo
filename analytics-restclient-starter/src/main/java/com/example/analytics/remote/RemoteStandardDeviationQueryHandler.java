@@ -2,9 +2,9 @@ package com.example.analytics.remote;
 
 import com.example.analytics.PriceStatistics;
 import com.example.analytics.StandardDeviationQuery;
-import com.example.messaging.MessageHandler;
+import com.example.contractbus.ContractHandler;
 
-class RemoteStandardDeviationQueryHandler implements MessageHandler<StandardDeviationQuery, PriceStatistics> {
+class RemoteStandardDeviationQueryHandler implements ContractHandler<StandardDeviationQuery, PriceStatistics> {
 
     private final RemoteAnalyticsClient client;
 

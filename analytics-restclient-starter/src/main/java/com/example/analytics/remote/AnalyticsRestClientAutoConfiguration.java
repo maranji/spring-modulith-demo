@@ -7,20 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 
 import com.example.analytics.AverageQuery;
-import com.example.messaging.MessageBus;
+import com.example.contractbus.ContractBus;
 
 /**
- * Auto-configurazione dell'adapter HTTP per il modulo Analytics: registra
- * gli handler di {@code AverageQuery}/{@code StandardDeviationQuery} che
- * delegano a un servizio esterno via HTTP, invece che calcolare in-process.
- *
- * <p><b>Non</b> va usato insieme a {@code analytics-spring-boot-starter}
- * nello stesso deployment: sono due implementazioni alternative dello
- * stesso contratto (locale vs. remota). Vedi il README per come scegliere
- * quale attivare in {@code app/build.gradle}.
+ * Must not be combined with {@code analytics-spring-boot-starter}: both register
+ * handlers for the same contracts and the bus would fail at startup.
  */
 @AutoConfiguration
-@ConditionalOnClass({AverageQuery.class, MessageBus.class})
+@ConditionalOnClass({AverageQuery.class, ContractBus.class})
 @EnableConfigurationProperties(RemoteAnalyticsProperties.class)
 public class AnalyticsRestClientAutoConfiguration {
 

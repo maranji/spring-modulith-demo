@@ -11,11 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Test end-to-end: avvia l'intero contesto Spring (entrambi gli starter +
- * l'app) e verifica il comportamento via HTTP, usando i dati di esempio
- * inclusi in {@code src/main/resources/data}.
- */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 class PriceStatisticsControllerIT {

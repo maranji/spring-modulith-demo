@@ -28,30 +28,8 @@ import com.example.marketdata.PricePoint;
 import jakarta.annotation.PostConstruct;
 
 /**
- * Legge un file JSON per asset da una directory configurabile (vedi
- * {@link MarketDataProperties}) e ne tiene i prezzi in memoria.
- *
- * <p>Non implementa alcuna interfaccia pubblica: l'unico modo in cui il
- * resto dell'applicazione (compreso il modulo "app") accede a questi dati
- * è inviando un {@link com.example.marketdata.FindPricesQuery},
- * {@link com.example.marketdata.AvailableAssetsQuery} o
- * {@link com.example.marketdata.RefreshMarketDataCommand} al
- * {@code MessageBus} — mai chiamando questa classe direttamente. I tre
- * handler in questo stesso package ({@link FindPricesQueryHandler},
- * {@link AvailableAssetsQueryHandler}, {@link RefreshMarketDataCommandHandler})
- * sono gli unici a conoscerla.
- *
- * <p>I dati vengono caricati in memoria all'avvio e ricaricati
- * periodicamente (o su richiesta, tramite {@link #refresh()}); ogni
- * ricaricamento pubblica un evento {@link MarketDataRefreshed} a cui altri
- * moduli possono reagire, ad esempio per invalidare una cache di calcoli
- * derivati.
- *
- * <p>Non annotata con {@code @Component}: viene registrata esplicitamente
- * come bean da {@link MarketDataAutoConfiguration}, secondo il modello degli
- * auto-configuration starter (nessun component-scan del package dello
- * starter da parte dell'applicazione ospite). Visibilità di package di
- * proposito, per lo stesso motivo.
+ * Not a {@code @Component}: registered by {@link MarketDataAutoConfiguration},
+ * since host apps don't component-scan starter packages.
  */
 class MarketDataStore {
 
@@ -74,13 +52,11 @@ class MarketDataStore {
         this.events = events;
     }
 
-    /** Carica i dati la prima volta, all'avvio dell'applicazione. */
     @PostConstruct
     void init() {
         doRefresh();
     }
 
-    /** Ricarica periodicamente i file dal disco, se abilitato in configurazione. */
     @Scheduled(fixedDelayString = "${market-data.refresh-interval:PT5M}",
             initialDelayString = "${market-data.refresh-interval:PT5M}")
     void scheduledRefresh() {

@@ -2,9 +2,9 @@ package com.example.analytics.remote;
 
 import com.example.analytics.AverageQuery;
 import com.example.analytics.PriceStatistics;
-import com.example.messaging.MessageHandler;
+import com.example.contractbus.ContractHandler;
 
-class RemoteAverageQueryHandler implements MessageHandler<AverageQuery, PriceStatistics> {
+class RemoteAverageQueryHandler implements ContractHandler<AverageQuery, PriceStatistics> {
 
     private final RemoteAnalyticsClient client;
 
