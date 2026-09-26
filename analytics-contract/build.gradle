@@ -1,0 +1,7 @@
+// Other modules' exceptions are referenced only in Javadoc (@throws), so no dependency is needed.
+dependencies {
+    api project(':base-contract')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+}

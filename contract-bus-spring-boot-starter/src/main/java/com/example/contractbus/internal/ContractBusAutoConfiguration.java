@@ -1,0 +1,21 @@
+package com.example.contractbus.internal;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+
+import com.example.contractbus.ContractBus;
+import com.example.contractbus.ContractHandler;
+
+@AutoConfiguration
+@ConditionalOnClass(ContractBus.class)
+public class ContractBusAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    ContractBus contractBus(ObjectProvider<ContractHandler<?, ?>> handlers) {
+        return new SimpleContractBus(() -> handlers.orderedStream().toList());
+    }
+}
