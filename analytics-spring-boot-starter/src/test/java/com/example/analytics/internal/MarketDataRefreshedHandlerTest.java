@@ -19,7 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class MarketDataChangeListenerTest {
+class MarketDataRefreshedHandlerTest {
 
     private static final LocalDate FROM = LocalDate.of(2026, 1, 1);
     private static final LocalDate TO = LocalDate.of(2026, 1, 31);
@@ -27,7 +27,7 @@ class MarketDataChangeListenerTest {
     private final ContractBus contractBus = mock(ContractBus.class);
     private final AnalyticsCache cache = new AnalyticsCache();
     private final AnalyticsCalculationService service = new AnalyticsCalculationService(contractBus, cache);
-    private final MarketDataChangeListener listener = new MarketDataChangeListener(cache);
+    private final MarketDataRefreshedHandler handler = new MarketDataRefreshedHandler(cache);
 
     @Test
     void invalidatesCacheOnMarketDataRefreshed() {
@@ -40,7 +40,7 @@ class MarketDataChangeListenerTest {
         service.average("AAPL", FROM, TO);
         verify(contractBus, times(1)).send(new FindPricesQuery("AAPL", FROM, TO));
 
-        listener.on(new MarketDataRefreshed(Set.of("AAPL"), Instant.now()));
+        handler.handle(new MarketDataRefreshed(Set.of("AAPL"), Instant.now()));
         service.average("AAPL", FROM, TO);
 
         verify(contractBus, times(2)).send(new FindPricesQuery("AAPL", FROM, TO));
@@ -48,7 +48,7 @@ class MarketDataChangeListenerTest {
 
     @Test
     void doesNotFailWhenCacheIsAlreadyEmpty() {
-        listener.on(new MarketDataRefreshed(Set.of(), Instant.now()));
+        handler.handle(new MarketDataRefreshed(Set.of(), Instant.now()));
 
         assertThat(cache).isNotNull();
     }

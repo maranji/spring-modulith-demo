@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 import com.example.contractbus.ContractBus;
 import com.example.contractbus.ContractHandler;
+import com.example.contractbus.InfoHandler;
 
 @AutoConfiguration
 @ConditionalOnClass(ContractBus.class)
@@ -15,7 +16,10 @@ public class ContractBusAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ContractBus contractBus(ObjectProvider<ContractHandler<?, ?>> handlers) {
-        return new SimpleContractBus(() -> handlers.orderedStream().toList());
+    ContractBus contractBus(ObjectProvider<ContractHandler<?, ?>> contractHandlers,
+                            ObjectProvider<InfoHandler<?>> infoHandlers) {
+        return new SimpleContractBus(
+                () -> contractHandlers.orderedStream().toList(),
+                () -> infoHandlers.orderedStream().toList());
     }
 }

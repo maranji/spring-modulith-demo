@@ -3,5 +3,7 @@ package com.example.marketdata;
 import java.time.Instant;
 import java.util.Set;
 
-public record MarketDataRefreshed(Set<String> assetSymbols, Instant occurredAt) {
+import com.example.basecontract.Info;
+
+public record MarketDataRefreshed(Set<String> assetSymbols, Instant occurredAt) implements Info {
 }

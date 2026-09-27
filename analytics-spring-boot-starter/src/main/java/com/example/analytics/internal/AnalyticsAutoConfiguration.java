@@ -4,17 +4,11 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.example.analytics.AverageQuery;
 import com.example.contractbus.ContractBus;
 
-/**
- * {@code @EnableAsync} is required because {@code @ApplicationModuleListener} is
- * meta-annotated with {@code @Async}; the starter enables it so the host app doesn't have to.
- */
 @AutoConfiguration
-@EnableAsync
 @ConditionalOnClass({AverageQuery.class, ContractBus.class})
 public class AnalyticsAutoConfiguration {
 
@@ -41,7 +35,7 @@ public class AnalyticsAutoConfiguration {
     }
 
     @Bean
-    MarketDataChangeListener marketDataChangeListener(AnalyticsCache cache) {
-        return new MarketDataChangeListener(cache);
+    MarketDataRefreshedHandler marketDataRefreshedHandler(AnalyticsCache cache) {
+        return new MarketDataRefreshedHandler(cache);
     }
 }

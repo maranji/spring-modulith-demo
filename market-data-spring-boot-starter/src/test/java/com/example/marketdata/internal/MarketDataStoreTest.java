@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.example.contractbus.ContractBus;
 import com.example.marketdata.AssetNotFoundException;
 import com.example.marketdata.MarketDataRefreshed;
 import com.example.marketdata.PricePoint;
@@ -20,11 +20,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class MarketDataStoreTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
+    private final ContractBus contractBus = mock(ContractBus.class);
     private MarketDataStore store;
 
     @BeforeEach
@@ -33,7 +34,7 @@ class MarketDataStoreTest {
         properties.setDirectory("classpath:test-data/");
 
         store = new MarketDataStore(
-                new PathMatchingResourcePatternResolver(), objectMapper, properties, events);
+                new PathMatchingResourcePatternResolver(), objectMapper, properties, contractBus);
         store.init();
     }
 
@@ -46,8 +47,11 @@ class MarketDataStoreTest {
         assertThat(prices).hasSize(3);
         assertThat(prices.get(0).date()).isEqualTo(LocalDate.of(2026, 1, 2));
         assertThat(prices.get(0).price()).isEqualByComparingTo(new BigDecimal("100.00"));
+    }
 
-        verify(events).publishEvent(any(MarketDataRefreshed.class));
+    @Test
+    void initialLoadDoesNotBroadcastAnInfo() {
+        verifyNoInteractions(contractBus);
     }
 
     @Test
@@ -65,9 +69,9 @@ class MarketDataStoreTest {
     }
 
     @Test
-    void refreshReloadsDataAndPublishesEvent() {
+    void refreshReloadsDataAndBroadcastsInfo() {
         store.refresh();
 
-        verify(events, org.mockito.Mockito.times(2)).publishEvent(any(MarketDataRefreshed.class));
+        verify(contractBus).broadcast(any(MarketDataRefreshed.class));
     }
 }

@@ -1,4 +1,4 @@
-rootProject.name = 'spring-modulith-demo'
+rootProject.name = 'contract-bus-demo'
 
 include 'base-contract'
 include 'contract-bus'

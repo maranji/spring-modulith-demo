@@ -3,18 +3,14 @@ dependencies {
     implementation project(':contract-bus')
     implementation project(':analytics-contract')
 
-    // Only for the FindPricesQuery/PricePoint types sent over the bus.
+    // Only for the FindPricesQuery/PricePoint/MarketDataRefreshed types carried by the bus.
     implementation project(':market-data-contract')
 
     api 'org.springframework.boot:spring-boot-starter'
     api 'org.springframework.boot:spring-boot-autoconfigure'
 
-    // Provides @ApplicationModuleListener, used to invalidate the cache on MarketDataRefreshed.
-    implementation 'org.springframework.modulith:spring-modulith-events-api'
-
     annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
 }

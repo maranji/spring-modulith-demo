@@ -24,7 +24,6 @@ class AssetsController {
 
     @GetMapping
     Set<String> list() {
-        Set<String> send = contractBus.send(new AvailableAssetsQuery());
         return contractBus.send(new AvailableAssetsQuery());
     }
 

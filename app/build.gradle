@@ -24,14 +24,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    // Event Publication Registry: guaranteed event delivery without an external broker.
-    implementation 'org.springframework.modulith:spring-modulith-starter-jdbc'
-    // spring-modulith-starter-jdbc brings no connection pool: without it there is no DataSource.
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    runtimeOnly 'com.h2database:h2'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.modulith:spring-modulith-starter-test'
 }
 
 bootJar {

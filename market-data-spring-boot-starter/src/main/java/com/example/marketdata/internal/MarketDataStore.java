@@ -15,12 +15,12 @@ import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.contractbus.ContractBus;
 import com.example.marketdata.AssetNotFoundException;
 import com.example.marketdata.MarketDataRefreshed;
 import com.example.marketdata.PricePoint;
@@ -38,23 +38,25 @@ class MarketDataStore {
     private final ResourcePatternResolver resourceResolver;
     private final ObjectMapper objectMapper;
     private final MarketDataProperties properties;
-    private final ApplicationEventPublisher events;
+    private final ContractBus contractBus;
 
     private volatile Map<String, List<PricePoint>> pricesByAsset = Map.of();
 
     MarketDataStore(ResourcePatternResolver resourceResolver,
                      ObjectMapper objectMapper,
                      MarketDataProperties properties,
-                     ApplicationEventPublisher events) {
+                     ContractBus contractBus) {
         this.resourceResolver = resourceResolver;
         this.objectMapper = objectMapper;
         this.properties = properties;
-        this.events = events;
+        this.contractBus = contractBus;
     }
 
+    // No Info broadcast here: broadcasting would index every handler, including those that
+    // depend on this bean while it is still being created (a startup cycle).
     @PostConstruct
     void init() {
-        doRefresh();
+        load();
     }
 
     @Scheduled(fixedDelayString = "${market-data.refresh-interval:PT5M}",
@@ -88,10 +90,15 @@ class MarketDataStore {
     }
 
     private synchronized void doRefresh() {
+        Set<String> assets = load();
+        contractBus.broadcast(new MarketDataRefreshed(assets, Instant.now()));
+    }
+
+    private synchronized Set<String> load() {
         Map<String, List<PricePoint>> loaded = loadFromDisk();
         this.pricesByAsset = loaded;
         log.info("Market data (re)loaded from '{}' for assets: {}", properties.getDirectory(), loaded.keySet());
-        events.publishEvent(new MarketDataRefreshed(loaded.keySet(), Instant.now()));
+        return loaded.keySet();
     }
 
     private Map<String, List<PricePoint>> loadFromDisk() {
