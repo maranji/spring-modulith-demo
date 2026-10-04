@@ -1,1 +1,1 @@
-com.example.marketdata.internal.MarketDataAutoConfiguration
+org.maranji.marketdata.internal.MarketDataAutoConfiguration

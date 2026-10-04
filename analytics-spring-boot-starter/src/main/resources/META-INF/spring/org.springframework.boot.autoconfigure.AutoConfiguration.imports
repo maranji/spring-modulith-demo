@@ -1,1 +1,1 @@
-com.example.analytics.internal.AnalyticsAutoConfiguration
+org.maranji.analytics.internal.AnalyticsAutoConfiguration

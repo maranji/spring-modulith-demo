@@ -1,54 +1,54 @@
 # Contract Bus POC — Market Data & Analytics
 
-POC di un modular monolith **Gradle multi-modulo** (Java 21, Spring Boot 3.4.1) in cui l'**unico** canale di comunicazione tra moduli è un **contract bus** scritto a mano. L'obiettivo è spingere questo meccanismo il più lontano possibile, per capirne a fondo i limiti.
+POC of a **Gradle multi-module** modular monolith (Java 21, Spring Boot 3.4.1) in which the **only** communication channel between modules is a hand-written **contract bus**. The goal is to push this mechanism as far as possible, to fully understand its limits.
 
-Principi:
+Principles:
 
-1. ogni modulo di dominio è impacchettato come **Spring Boot starter** con auto-configuration;
-2. il **contratto** di ogni modulo (richieste, risposte, info) è separato dalla sua implementazione;
-3. **`app` non importa alcuna interfaccia di servizio dei moduli di dominio**: invia contratti che sono pura data al bus. Un modulo è quindi rimuovibile come dipendenza e sostituibile con un adapter verso un servizio esterno, senza toccare `app`;
-4. anche le notifiche uno-a-molti passano dal bus: niente `ApplicationEventPublisher` né altri meccanismi di Spring per far parlare i moduli.
+1. every domain module is packaged as a **Spring Boot starter** with auto-configuration;
+2. each module's **contract** (requests, responses, infos) is separate from its implementation;
+3. **`app` imports no service interface from the domain modules**: it sends contracts, which are pure data, to the bus. A module can therefore be removed as a dependency and replaced by an adapter to an external service, without touching `app`;
+4. one-to-many notifications go through the bus too: no `ApplicationEventPublisher` or any other Spring mechanism to make modules talk to each other.
 
-Il documento [`docs/architettura-modular-monolith-spring-modulith.md`](docs/architettura-modular-monolith-spring-modulith.md) è il riferimento architetturale generale da cui la POC è partita (usava Spring Modulith, poi rimosso).
+The document [`docs/modular-monolith-architecture-spring-modulith.md`](docs/modular-monolith-architecture-spring-modulith.md) is the general architectural reference the POC started from (it used Spring Modulith, later removed).
 
-## 1. Struttura
+## 1. Structure
 
 ```
 contract-bus-demo/
-├── base-contract/                      ← marcatori Contract<R> e Info (zero dipendenze)
-├── contract-bus/                       ← CONTRATTO del trasporto
-├── contract-bus-spring-boot-starter/   ← contract bus in-process
-├── market-data-contract/               ← CONTRATTO Market Data: contratti, info, dati
-├── market-data-spring-boot-starter/    ← implementazione in-process (file JSON su disco)
-├── analytics-contract/                 ← CONTRATTO Analytics: contratti + dati
-├── analytics-spring-boot-starter/      ← implementazione in-process (calcolo + cache)
-├── analytics-restclient-starter/       ← implementazione ALTERNATIVA: client HTTP verso un servizio esterno
-├── app/                                ← applicazione Spring Boot sempre attiva (REST)
-└── docs/                               ← documento di riferimento architetturale
+├── base-contract/                      ← Contract<R> and Info markers (zero dependencies)
+├── contract-bus/                       ← transport CONTRACT
+├── contract-bus-spring-boot-starter/   ← in-process contract bus
+├── market-data-contract/               ← Market Data CONTRACT: contracts, infos, data
+├── market-data-spring-boot-starter/    ← in-process implementation (JSON files on disk)
+├── analytics-contract/                 ← Analytics CONTRACT: contracts + data
+├── analytics-spring-boot-starter/      ← in-process implementation (calculation + cache)
+├── analytics-restclient-starter/       ← ALTERNATIVE implementation: HTTP client to an external service
+├── app/                                ← always-on Spring Boot application (REST)
+└── docs/                               ← architectural reference document
 ```
 
-| Modulo | Contiene | Dipende da |
+| Module | Contains | Depends on |
 |---|---|---|
-| **base-contract** | `Contract<R>`, `Info` | **nessuno** |
+| **base-contract** | `Contract<R>`, `Info` | **nothing** |
 | **contract-bus** | `ContractBus`, `ContractHandler<C,R>`, `InfoHandler<I>` | `base-contract` |
-| **contract-bus-spring-boot-starter** | `SimpleContractBus`: raccoglie tutti gli handler e smista per tipo | `contract-bus` |
+| **contract-bus-spring-boot-starter** | `SimpleContractBus`: collects every handler, checks at startup that none is missing or duplicated, and dispatches by type | `contract-bus` |
 | **market-data-contract** | `FindPricesQuery`, `AvailableAssetsQuery`, `RefreshMarketDataCommand`, `MarketDataRefreshed` (info), `PricePoint`, `AssetNotFoundException` | `base-contract` |
-| **market-data-spring-boot-starter** | `MarketDataStore` + 3 `ContractHandler` (uno per contratto) | `contract-bus`, `market-data-contract` |
-| **analytics-contract** | `AverageQuery`, `StandardDeviationQuery`, `PriceStatistics`, `StatisticType`, `InsufficientDataException` | `base-contract` (nemmeno `market-data-contract`) |
-| **analytics-spring-boot-starter** | `AnalyticsCalculationService`, `AnalyticsCache` + 2 `ContractHandler` + 1 `InfoHandler` | `contract-bus`, `analytics-contract`, `market-data-contract` (solo per i tipi `FindPricesQuery`/`PricePoint`/`MarketDataRefreshed`) |
-| **analytics-restclient-starter** | `RemoteAnalyticsClient` (chiama un servizio Analytics esterno via HTTP) + 2 `ContractHandler` alternativi | `contract-bus`, `analytics-contract`, `market-data-contract` (solo per l'eccezione) |
-| **app** | Controller REST, gestione errori | `contract-bus`, `market-data-contract`, `analytics-contract`, `contract-bus-spring-boot-starter`, `market-data-spring-boot-starter` **+** una delle due implementazioni di Analytics |
+| **market-data-spring-boot-starter** | `MarketDataStore` + 3 `ContractHandler`s (one per contract) | `contract-bus`, `market-data-contract` |
+| **analytics-contract** | `AverageQuery`, `StandardDeviationQuery`, `PriceStatistics`, `StatisticType`, `InsufficientDataException` | `base-contract` (not even `market-data-contract`) |
+| **analytics-spring-boot-starter** | `AnalyticsCalculationService`, `AnalyticsCache` + 2 `ContractHandler`s + 1 `InfoHandler` | `contract-bus`, `analytics-contract`, `market-data-contract` (only for the `FindPricesQuery`/`PricePoint`/`MarketDataRefreshed` types) |
+| **analytics-restclient-starter** | `RemoteAnalyticsClient` (calls an external Analytics service over HTTP) + 2 alternative `ContractHandler`s | `contract-bus`, `analytics-contract`, `market-data-contract` (only for the exception) |
+| **app** | REST controllers, error handling | `contract-bus`, `market-data-contract`, `analytics-contract`, `contract-bus-spring-boot-starter`, `market-data-spring-boot-starter` **+** one of the two Analytics implementations |
 
-Gli starter dichiarano `contract-bus` direttamente, non lo ricevono in modo transitivo dal proprio modulo contratto: i contratti di dominio dipendono solo da `base-contract`, mai dal bus.
+The starters declare `contract-bus` directly instead of receiving it transitively from their contract module: domain contracts depend only on `base-contract`, never on the bus.
 
-## 2. Il contract bus
+## 2. The contract bus
 
-### Due semantiche, due tipi
+### Two semantics, two types
 
 ```java
 // base-contract
-public interface Contract<R> {}   // richiesta/risposta: esattamente 1 handler
-public interface Info {}          // notifica: da 0 a N handler, nessuna risposta
+public interface Contract<R> {}   // request/response: exactly 1 handler
+public interface Info {}          // notification: 0 to N handlers, no response
 
 // contract-bus
 public interface ContractBus {
@@ -61,144 +61,152 @@ public interface InfoHandler<I extends Info> { void handle(I info); }
 
 | | `send(Contract<R>)` | `broadcast(Info)` |
 |---|---|---|
-| Handler registrati | esattamente uno (un duplicato fa fallire l'avvio) | zero, uno o molti |
-| Nessun handler | `IllegalStateException` | nessun effetto |
-| Risposta | `R`, dichiarato dal contratto | nessuna |
-| Eccezione di un handler | risale al chiamante | solo loggata: non raggiunge il chiamante e gli handler successivi vengono chiamati comunque |
+| Registered handlers | exactly one (a duplicate makes startup fail) | zero, one or many |
+| No handler | startup fails if the contract is under `contract-bus.base-packages`; otherwise `IllegalStateException` on `send` | no effect |
+| Response | `R`, declared by the contract | none |
+| Handler exception | propagates to the caller | only logged: it doesn't reach the caller and the following handlers are still called |
 
-Ogni contratto dichiara il proprio tipo di risposta (`Contract<Void>` per i comandi, come `RefreshMarketDataCommand`); un handler il cui tipo di risposta non coincide con quello del contratto è un errore di compilazione. Comandi e info restano distinti di proposito: un comando deve avere il suo unico handler, e il bus deve poter segnalare quando manca; un'info può non interessare a nessuno. Il nome `Info` (e non "evento") è voluto: la POC non vuole evocare un'architettura a eventi, ma solo una notifica uno-a-molti sullo stesso bus.
+Every contract declares its own response type (`Contract<Void>` for commands, such as `RefreshMarketDataCommand`); a handler whose response type doesn't match the contract's is a compile error. Commands and infos are deliberately kept distinct: a command must have its single handler, and the bus must be able to report when it's missing; an info may interest nobody. The name `Info` (rather than "event") is deliberate: the POC doesn't want to suggest an event-driven architecture, just a one-to-many notification on the same bus.
 
-### Come funziona `SimpleContractBus`
+### How `SimpleContractBus` works
 
-All'avvio `SimpleContractBus` riceve **tutti** i bean `ContractHandler` e `InfoHandler` presenti nel contesto Spring, qualunque starter li abbia registrati, e li indicizza per il tipo che dichiarano di gestire, letto via reflection dal generico:
+At startup `SimpleContractBus` receives **all** the `ContractHandler` and `InfoHandler` beans in the Spring context, whichever starter registered them, and indexes them by the type they declare to handle, read via reflection from the generic:
 
 ```java
 ResolvableType.forClass(handler.getClass()).as(ContractHandler.class).getGeneric(0).resolve()
 ```
 
-È l'unico punto "magico" del progetto: un handler deve implementare `ContractHandler<SomeContract, SomeResponse>` o `InfoHandler<SomeInfo>` **direttamente**; un proxy AOP che nasconde l'informazione generica romperebbe il dispatch.
+This is the only "magic" spot in the project: a handler must implement `ContractHandler<SomeContract, SomeResponse>` or `InfoHandler<SomeInfo>` **directly**; an AOP proxy that hides the generic information would break dispatch.
 
-- `send(contract)` cerca l'handler per `contract.getClass()` e lo invoca; se non c'è, l'errore indica quale contratto non ha un modulo che lo gestisce.
-- `broadcast(info)` invoca tutti gli handler registrati per `info.getClass()`. Se un handler lancia un'eccezione, il bus la logga e passa al successivo. In `SimpleContractBus` gli handler girano in sequenza nel thread del chiamante: è una scelta di questa implementazione, non del contratto `ContractBus`, e un'altra implementazione potrà eseguirli in modo asincrono senza cambiare i chiamanti.
+- `send(contract)` looks up the handler for `contract.getClass()` and invokes it; if there is none, the error names the contract that no module handles.
+- `broadcast(info)` invokes every handler registered for `info.getClass()`. If a handler throws, the bus logs the exception and moves on to the next one. In `SimpleContractBus` the handlers run sequentially in the caller's thread: this is a choice of this implementation, not of the `ContractBus` contract, and another implementation could run them asynchronously without changing the callers.
 
-Il bus instrada per **tipo**, non per servizio: non esiste da nessuna parte un'interfaccia "AnalyticsService" o "MarketDataService".
+At startup (`afterSingletonsInstantiated`) the bus also checks that the index is complete and unambiguous; otherwise the application doesn't start:
 
-### `app` invia solo dati
+- if two handlers declare the same contract, the error lists every contested contract with its handlers (typically two alternative implementation modules on the classpath);
+- if a concrete `Contract` found on the classpath under `contract-bus.base-packages` has no handler, the error lists the unhandled contracts (typically a forgotten implementation starter). Contracts listed in `contract-bus.ignored-contracts` are excluded.
+
+The bus routes by **type**, not by service: there is no "AnalyticsService" or "MarketDataService" interface anywhere.
+
+### `app` sends only data
 
 ```java
-// PriceStatisticsController — nessuna interfaccia di servizio importata
+// PriceStatisticsController — no service interface imported
 private final ContractBus contractBus;
 
 @GetMapping("/average")
 PriceStatistics average(@PathVariable String symbol,
                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-    validateRange(from, to);   // 400 se from > to
+    validateRange(from, to);   // 400 if from > to
     return contractBus.send(new AverageQuery(symbol, from, to));
 }
 ```
 
-`AverageQuery` e `PriceStatistics` sono l'unica informazione che chiamante e implementazione devono condividere.
+`AverageQuery` and `PriceStatistics` are the only information the caller and the implementation need to share.
 
-### Chi gestisce ogni contratto, lo decide solo il `build.gradle`
+### Only `build.gradle` decides who handles each contract
 
 ```gradle
 // app/build.gradle
 if (analyticsMode == 'remote') {
-    implementation project(':analytics-restclient-starter')   // gli handler chiamano un servizio esterno via HTTP
+    implementation project(':analytics-restclient-starter')   // handlers call an external service over HTTP
 } else {
-    implementation project(':analytics-spring-boot-starter')  // gli handler calcolano in-process
+    implementation project(':analytics-spring-boot-starter')  // handlers compute in-process
 }
 ```
 
 ```bash
 ./gradlew :app:bootRun                          # Analytics in-process (default)
-./gradlew :app:bootRun -PanalyticsMode=remote   # Analytics come servizio esterno
-./gradlew :app:printAnalyticsMode               # mostra quale implementazione è configurata
+./gradlew :app:bootRun -PanalyticsMode=remote   # Analytics as an external service
+./gradlew :app:printAnalyticsMode               # show which implementation is wired in
 ```
 
-**Zero righe di `com.example.app` cambiano** passando da locale a remoto: cambia solo quale modulo, tra quelli sul classpath, ha registrato l'handler per quel contratto. Le due implementazioni sono mutuamente esclusive: averle entrambe sul classpath registrerebbe due handler per lo stesso contratto.
+**Zero lines of `org.maranji.app` change** when switching from local to remote: the only thing that changes is which module on the classpath registered the handler for that contract. The two implementations are mutually exclusive: having both on the classpath would register two handlers for the same contract, and startup would fail with an error listing them.
 
-`analytics-restclient-starter` chiama lo stesso contratto REST esposto da `PriceStatisticsController` (`GET /api/assets/{symbol}/statistics/average|standard-deviation`) su `analytics.remote.base-url` e traduce gli errori HTTP 404 e 422 nelle stesse eccezioni di dominio (`AssetNotFoundException`, `InsufficientDataException`). In modalità remota nessuno gestisce `MarketDataRefreshed`, e per un'info va bene così.
+`analytics-restclient-starter` calls the same REST contract exposed by `PriceStatisticsController` (`GET /api/assets/{symbol}/statistics/average|standard-deviation`) at `analytics.remote.base-url` and translates HTTP 404 and 422 errors into the same domain exceptions (`AssetNotFoundException`, `InsufficientDataException`). In remote mode nobody handles `MarketDataRefreshed`, and for an info that's fine.
 
-### Comunicazione tra moduli di dominio
+### Communication between domain modules
 
-Analytics ottiene i prezzi da Market Data con una richiesta sul bus:
+Analytics gets prices from Market Data with a request on the bus:
 
 ```java
 List<PricePoint> pricePoints = contractBus.send(new FindPricesQuery(asset, from, to));
 ```
 
-Il refresh dei dati combina le due semantiche. La **richiesta** di refresh è un comando, quindi passa da `send` ed è gestita da uno e un solo modulo; la **notifica** che i dati sono cambiati è un'info, trasmessa a chiunque sia interessato:
+The data refresh combines both semantics. The refresh **request** is a command, so it goes through `send` and is handled by one and only one module; the **notification** that the data changed is an info, broadcast to whoever is interested:
 
 ```
 POST /api/assets/refresh
-  └─ AssetsController ──send(RefreshMarketDataCommand)──▶ RefreshMarketDataCommandHandler   (esattamente 1 handler: market-data)
+  └─ AssetsController ──send(RefreshMarketDataCommand)──▶ RefreshMarketDataCommandHandler   (exactly 1 handler: market-data)
                                                             └─ MarketDataStore.refresh()
-                                                                 └─ broadcast(MarketDataRefreshed) ──▶ 0..N InfoHandler
-                                                                                                       (oggi: MarketDataRefreshedHandler)
+                                                                 └─ broadcast(MarketDataRefreshed) ──▶ 0..N InfoHandlers
+                                                                                                       (today: MarketDataRefreshedHandler)
 ```
 
-Anche il refresh programmato di `MarketDataStore` trasmette `MarketDataRefreshed`. `MarketDataRefreshedHandler` (in `analytics-spring-boot-starter`) svuota la cache delle statistiche; Market Data non sa chi, e se qualcuno, riceve l'info.
+The scheduled refresh of `MarketDataStore` broadcasts `MarketDataRefreshed` too. `MarketDataRefreshedHandler` (in `analytics-spring-boot-starter`) clears the statistics cache; Market Data doesn't know who, if anyone, receives the info.
 
-## 3. Limiti noti
+## 3. Known limits
 
-Questa sezione raccoglie i limiti del contract bus man mano che emergono. È il vero oggetto di studio della POC.
+This section collects the contract bus's limits as they come up. It is the real object of study of the POC.
 
-1. **Trasmettere un'info durante l'inizializzazione dei bean crea un ciclo.** La prima chiamata al bus costruisce l'indice degli handler, quindi li istanzia tutti. Se il caricamento iniziale di `MarketDataStore` (`@PostConstruct`) trasmettesse `MarketDataRefreshed`, verrebbe istanziato anche `FindPricesQueryHandler`, che dipende proprio da `MarketDataStore`, ancora in creazione: l'avvio fallisce con `BeanCurrentlyInCreationException` (verificato). Per questo il caricamento iniziale non trasmette nulla: all'avvio non c'è nessuna cache da invalidare.
-2. **Chi chiama `broadcast` non sa se un'info è stata gestita.** Gli errori degli handler vengono solo loggati: se l'invalidazione della cache di Analytics fallisse, Market Data non se ne accorgerebbe e le statistiche resterebbero calcolate sui dati vecchi fino al broadcast successivo andato a buon fine.
-3. **Nessuna garanzia di consegna.** Le info vivono solo in memoria: se il processo termina durante il broadcast, o un handler fallisce, la notifica è persa. Non c'è persistenza né retry.
-4. **Nessuna integrazione con le transazioni.** `broadcast` invoca subito gli handler: se venisse chiamato dentro una transazione poi annullata, gli handler avrebbero già reagito a qualcosa che non è mai avvenuto.
-5. **Dispatch per classe esatta.** Un handler registrato per un supertipo (o un'interfaccia) non riceve i sottotipi, sia per i contratti sia per le info.
-6. **Ordine degli handler di un'info.** È quello dei bean (`ObjectProvider.orderedStream()`): definito solo se gli handler usano `@Order`/`Ordered`.
-7. **Handler non proxabili.** Il tipo gestito si ricava dal generico della classe concreta: un proxy che lo nasconde rompe il dispatch.
-8. **Nessuna verifica automatica dei confini tra moduli.** Senza Spring Modulith (`ApplicationModules.verify()`) l'unica protezione è la visibilità Java: le classi di implementazione sono package-private, sotto `internal/` negli starter in-process e sotto `remote/` in `analytics-restclient-starter`.
+1. **Broadcasting an info during bean initialization creates a cycle.** The first call to the bus builds the handler index, so it instantiates all of them. If the initial load of `MarketDataStore` (`@PostConstruct`) broadcast `MarketDataRefreshed`, `FindPricesQueryHandler` would be instantiated too, and it depends on `MarketDataStore` itself, still being created: startup fails with `BeanCurrentlyInCreationException` (verified). That's why the initial load broadcasts nothing: at startup there is no cache to invalidate.
+2. **Whoever calls `broadcast` doesn't know whether an info was handled.** Handler errors are only logged: if the Analytics cache invalidation failed, Market Data wouldn't notice and statistics would stay computed on stale data until the next successful broadcast.
+3. **No delivery guarantee.** Infos live only in memory: if the process ends during the broadcast, or a handler fails, the notification is lost. There is no persistence or retry.
+4. **No transaction integration.** `broadcast` invokes the handlers immediately: if it were called inside a transaction that is later rolled back, the handlers would already have reacted to something that never happened.
+5. **Dispatch by exact class.** A handler registered for a supertype (or an interface) doesn't receive subtypes, for both contracts and infos.
+6. **Order of an info's handlers.** It's the bean order (`ObjectProvider.orderedStream()`): defined only if the handlers use `@Order`/`Ordered`.
+7. **Handlers can't be proxied.** The handled type is read from the generic of the concrete class: a proxy that hides it breaks dispatch.
+8. **No automatic verification of module boundaries.** Without Spring Modulith (`ApplicationModules.verify()`) the only protection is Java visibility: implementation classes are package-private (except the `*AutoConfiguration` classes, which are `public`), under `internal/` in the in-process starters and under `remote/` in `analytics-restclient-starter`.
+9. **A missing handler surfaces at startup, not at compile time.** `app` compiles even if the starter implementing a contract it uses is missing. To avoid discovering it on the first `send`, at startup the bus looks up every concrete `Contract` on the classpath under `contract-bus.base-packages` and, if one has no handler, the application doesn't start. A contract module on the classpath therefore requires its implementation, unless the contract is listed in `contract-bus.ignored-contracts`. The check doesn't see contracts outside those packages, and it needs a test that starts the context for the error to surface during the `build`.
 
-## 4. API REST
+## 4. REST API
 
-| Metodo | Path | Descrizione |
+| Method | Path | Description |
 |---|---|---|
-| `GET` | `/api/assets` | Elenco degli asset disponibili |
-| `POST` | `/api/assets/refresh` | Ricarica manualmente i dati dal disco (202 Accepted) |
-| `GET` | `/api/assets/{symbol}/statistics/average?from=YYYY-MM-DD&to=YYYY-MM-DD` | Media dei prezzi nel periodo |
-| `GET` | `/api/assets/{symbol}/statistics/standard-deviation?from=YYYY-MM-DD&to=YYYY-MM-DD` | Deviazione standard campionaria dei prezzi nel periodo |
+| `GET` | `/api/assets` | List of available assets |
+| `POST` | `/api/assets/refresh` | Manually reload the data from disk (202 Accepted) |
+| `GET` | `/api/assets/{symbol}/statistics/average?from=YYYY-MM-DD&to=YYYY-MM-DD` | Average price over the period |
+| `GET` | `/api/assets/{symbol}/statistics/standard-deviation?from=YYYY-MM-DD&to=YYYY-MM-DD` | Sample standard deviation of prices over the period |
 
-Errori come [RFC 7807 Problem Details](https://www.rfc-editor.org/rfc/rfc7807):
-`404` asset sconosciuto, `422` nessun dato nel periodo, `400` `from` successivo a `to`.
+Errors as [RFC 7807 Problem Details](https://www.rfc-editor.org/rfc/rfc7807):
+`404` unknown asset, `422` no data in the period, `400` `from` after `to`.
 
-Dati di esempio: `AAPL` e `MSFT`, 11 quotazioni fittizie ciascuno (2–16 gennaio 2026), in `app/src/main/resources/data/*.json`.
+Sample data: `AAPL` and `MSFT`, 11 fictitious quotes each (January 2–16, 2026), in `app/src/main/resources/data/*.json`.
 
-## 5. Configurazione
+## 5. Configuration
 
-Le proprietà principali, in `app/src/main/resources/application.yml`:
+The main properties, in `app/src/main/resources/application.yml`:
 
-| Proprietà | Default | Descrizione |
+| Property | Default | Description |
 |---|---|---|
-| `market-data.directory` | `classpath:data/` | Cartella dei file JSON (sintassi `Resource` di Spring, es. `file:/percorso/assoluto/`) |
-| `market-data.refresh-interval` | `PT5M` | Intervallo del ricaricamento automatico dei dati |
-| `market-data.refresh-enabled` | `true` | Abilita il ricaricamento automatico (quello manuale via `POST /api/assets/refresh` resta sempre disponibile) |
-| `analytics.remote.base-url` | `http://localhost:8081` in `application.yml` (`http://localhost:8080` se la proprietà manca) | URL del servizio Analytics esterno; usata solo con `-PanalyticsMode=remote` |
+| `market-data.directory` | `classpath:data/` | Directory of the JSON files (Spring `Resource` syntax, e.g. `file:/absolute/path/`) |
+| `market-data.refresh-interval` | `PT5M` | Interval of the automatic data reload |
+| `market-data.refresh-enabled` | `true` | Enables the automatic reload (the manual one via `POST /api/assets/refresh` is always available) |
+| `contract-bus.base-packages` | `org.maranji` | Packages where the bus looks, at startup, for the `Contract`s that must have a handler |
+| `contract-bus.ignored-contracts` | (empty) | Contracts on the classpath that are allowed to have no handler |
+| `analytics.remote.base-url` | `http://localhost:8081` in `application.yml` (`http://localhost:8080` if the property is missing) | URL of the external Analytics service; used only with `-PanalyticsMode=remote` |
 
-## 6. Come eseguire il progetto
+## 6. How to run the project
 
-Serve JDK 21; il Gradle Wrapper (Gradle 8.5) è incluso.
+Requires JDK 21; the Gradle Wrapper (Gradle 8.5) is included.
 
 ```bash
-# Build completa + test (Analytics in-process, default)
+# Full build + tests (Analytics in-process, default)
 ./gradlew build
 
-# Test di un solo modulo o di una sola classe
+# Tests of a single module or a single class
 ./gradlew :analytics-spring-boot-starter:test
 ./gradlew test --tests '*SimpleContractBusTest'
 
-# Avvio
+# Run
 ./gradlew :app:bootRun
-# oppure, per l'implementazione remota di Analytics (serve un servizio in
-# ascolto su analytics.remote.base-url che esponga lo stesso contratto REST):
+# or, for the remote Analytics implementation (needs a service listening
+# on analytics.remote.base-url that exposes the same REST contract):
 ./gradlew :app:bootRun -PanalyticsMode=remote
 ```
 
-Prova rapida (modalità default, locale):
+Quick check (default, local mode):
 
 ```bash
 curl "http://localhost:8080/api/assets"
@@ -207,21 +215,22 @@ curl "http://localhost:8080/api/assets/AAPL/statistics/standard-deviation?from=2
 curl -X POST "http://localhost:8080/api/assets/refresh"
 ```
 
-`PriceStatisticsControllerIT` assume la modalità locale (verifica i valori calcolati sui dati di esempio reali).
+`PriceStatisticsControllerIT` assumes local mode (it checks values computed on the real sample data).
 
-## 7. Test inclusi
+## 7. Included tests
 
-- `SimpleContractBusTest` (contract-bus-spring-boot-starter) — il cuore del meccanismo: dispatch di `send` per tipo, errore se manca l'handler o se ce ne sono due, `broadcast` verso più handler, `broadcast` senza handler, eccezione di un handler che non raggiunge il chiamante e non ferma gli handler successivi.
-- `PricePointTest` (market-data-contract) — validazione del value type.
-- `MarketDataStoreTest`, `MarketDataQueryHandlersTest` — logica di market-data, broadcast dell'info solo al refresh e delega dei tre handler.
-- `PriceStatisticsCalculatorTest`, `AnalyticsCalculationServiceTest`, `AnalyticsQueryHandlersTest`, `MarketDataRefreshedHandlerTest` — logica di analytics (basata su `ContractBus` mockato), delega dei due handler e invalidazione della cache.
-- `RemoteAnalyticsClientTest` (analytics-restclient-starter) — chiamata HTTP e traduzione errori con `MockRestServiceServer`.
-- `PriceStatisticsControllerIT` — end-to-end via MockMvc (modalità locale).
+- `SimpleContractBusTest` (contract-bus-spring-boot-starter) — the heart of the mechanism: `send` dispatch by type, error when the handler is missing or when there are two, startup failure when a required contract has no handler, `broadcast` to many handlers, `broadcast` with no handlers, a handler exception that doesn't reach the caller and doesn't stop the following handlers.
+- `ContractBusAutoConfigurationTest` (contract-bus-spring-boot-starter) — the auto-configuration finds the contracts on the classpath and prevents startup if one has no handler, unless it's in `contract-bus.ignored-contracts`.
+- `PricePointTest` (market-data-contract) — value type validation.
+- `MarketDataStoreTest`, `MarketDataQueryHandlersTest` — market-data logic, info broadcast only on refresh, and delegation of the three handlers.
+- `PriceStatisticsCalculatorTest`, `AnalyticsCalculationServiceTest`, `AnalyticsQueryHandlersTest`, `MarketDataRefreshedHandlerTest` — analytics logic (based on a mocked `ContractBus`), delegation of the two handlers and cache invalidation.
+- `RemoteAnalyticsClientTest` (analytics-restclient-starter) — HTTP call and error translation with `MockRestServiceServer`.
+- `PriceStatisticsControllerIT` — end-to-end via MockMvc (local mode).
 
-## 8. Direzioni da esplorare
+## 8. Directions to explore
 
-- Un `broadcast` asincrono (su un `Executor`): cosa si guadagna e cosa si perde (ordine, test deterministici, visibilità degli errori).
-- Garanzia di consegna: un registro persistente delle info con retry, scritto sopra il bus.
-- Un'implementazione di `ContractBus` che inoltra contratti e info su HTTP o su una coda (Kafka/RabbitMQ), senza cambiare i chiamanti.
-- `market-data-restclient-starter`: estrarre anche Market Data e vedere cosa succede alle info quando chi le trasmette sta in un altro processo.
-- Un test ArchUnit che sostituisca la verifica dei confini persa con Spring Modulith.
+- An asynchronous `broadcast` (on an `Executor`): what is gained and what is lost (ordering, deterministic tests, error visibility).
+- Delivery guarantee: a persistent registry of infos with retry, built on top of the bus.
+- A `ContractBus` implementation that forwards contracts and infos over HTTP or a queue (Kafka/RabbitMQ), without changing the callers.
+- `market-data-restclient-starter`: extract Market Data too and see what happens to infos when the broadcaster lives in another process.
+- An ArchUnit test to replace the boundary verification lost with Spring Modulith.
