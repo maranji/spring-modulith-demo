@@ -9,7 +9,7 @@ import org.maranji.analytics.actions.InsufficientDataException;
 import org.maranji.analytics.actions.PriceStatistics;
 import org.maranji.analytics.actions.StatisticType;
 import org.maranji.actionrouter.ActionRouter;
-import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.AssetPrices;
 import org.maranji.marketdata.actions.PricePoint;
 
 class AnalyticsCalculationService {
@@ -37,7 +37,7 @@ class AnalyticsCalculationService {
     }
 
     private PriceStatistics doCompute(String asset, LocalDate from, LocalDate to, StatisticType type) {
-        List<PricePoint> pricePoints = actionRouter.route(new FindPricesQuery(asset, from, to));
+        List<PricePoint> pricePoints = actionRouter.route(new AssetPrices(asset, from, to));
         List<BigDecimal> prices = pricePoints.stream().map(PricePoint::price).toList();
 
         int minimumSampleSize = type == StatisticType.STANDARD_DEVIATION ? 2 : 1;

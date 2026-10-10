@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.maranji.actionrouter.ActionRouter;
-import org.maranji.marketdata.actions.AvailableAssetsQuery;
-import org.maranji.marketdata.actions.RefreshMarketDataCommand;
+import org.maranji.marketdata.actions.AvailableAssets;
+import org.maranji.marketdata.actions.RefreshMarketData;
 
 @RestController
 @RequestMapping("/api/assets")
@@ -24,12 +24,12 @@ class AssetsController {
 
     @GetMapping
     Set<String> list() {
-        return actionRouter.route(new AvailableAssetsQuery());
+        return actionRouter.route(new AvailableAssets());
     }
 
     @PostMapping("/refresh")
     ResponseEntity<Void> refresh() {
-        actionRouter.route(new RefreshMarketDataCommand());
+        actionRouter.route(new RefreshMarketData());
         return ResponseEntity.accepted().build();
     }
 }

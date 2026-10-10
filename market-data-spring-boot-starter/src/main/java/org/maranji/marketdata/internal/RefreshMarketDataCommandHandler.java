@@ -1,9 +1,9 @@
 package org.maranji.marketdata.internal;
 
 import org.maranji.actionrouter.ActionHandler;
-import org.maranji.marketdata.actions.RefreshMarketDataCommand;
+import org.maranji.marketdata.actions.RefreshMarketData;
 
-class RefreshMarketDataCommandHandler implements ActionHandler<RefreshMarketDataCommand, Void> {
+class RefreshMarketDataCommandHandler implements ActionHandler<RefreshMarketData, Void> {
 
     private final MarketDataStore store;
 
@@ -12,7 +12,7 @@ class RefreshMarketDataCommandHandler implements ActionHandler<RefreshMarketData
     }
 
     @Override
-    public Void handle(RefreshMarketDataCommand command) {
+    public Void handle(RefreshMarketData command) {
         store.refresh();
         return null;
     }

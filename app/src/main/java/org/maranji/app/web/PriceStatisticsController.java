@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.AveragePrice;
 import org.maranji.analytics.actions.PriceStatistics;
 import org.maranji.analytics.actions.StandardDeviationQuery;
 import org.maranji.actionrouter.ActionRouter;
@@ -29,7 +29,7 @@ class PriceStatisticsController {
                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         validateRange(from, to);
-        return actionRouter.route(new AverageQuery(symbol, from, to));
+        return actionRouter.route(new AveragePrice(symbol, from, to));
     }
 
     @GetMapping("/standard-deviation")

@@ -1,10 +1,10 @@
 package org.maranji.analytics.internal;
 
-import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.AveragePrice;
 import org.maranji.analytics.actions.PriceStatistics;
 import org.maranji.actionrouter.ActionHandler;
 
-class AverageQueryHandler implements ActionHandler<AverageQuery, PriceStatistics> {
+class AverageQueryHandler implements ActionHandler<AveragePrice, PriceStatistics> {
 
     private final AnalyticsCalculationService service;
 
@@ -13,7 +13,7 @@ class AverageQueryHandler implements ActionHandler<AverageQuery, PriceStatistics
     }
 
     @Override
-    public PriceStatistics handle(AverageQuery query) {
+    public PriceStatistics handle(AveragePrice query) {
         return service.average(query.asset(), query.from(), query.to());
     }
 }

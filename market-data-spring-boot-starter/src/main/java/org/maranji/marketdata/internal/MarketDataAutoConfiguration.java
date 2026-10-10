@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.maranji.actionrouter.ActionRouter;
-import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.AssetPrices;
 
 /**
  * No {@link ResourcePatternResolver} bean is needed: every
@@ -19,7 +19,7 @@ import org.maranji.marketdata.actions.FindPricesQuery;
 @AutoConfiguration
 @EnableScheduling
 @EnableConfigurationProperties(MarketDataProperties.class)
-@ConditionalOnClass(FindPricesQuery.class)
+@ConditionalOnClass(AssetPrices.class)
 public class MarketDataAutoConfiguration {
 
     @Bean

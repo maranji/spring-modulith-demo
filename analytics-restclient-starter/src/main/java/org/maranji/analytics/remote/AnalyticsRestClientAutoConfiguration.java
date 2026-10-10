@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 
-import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.AveragePrice;
 import org.maranji.actionrouter.ActionRouter;
 
 /**
@@ -14,7 +14,7 @@ import org.maranji.actionrouter.ActionRouter;
  * handlers for the same actions and the router would fail at startup.
  */
 @AutoConfiguration
-@ConditionalOnClass({AverageQuery.class, ActionRouter.class})
+@ConditionalOnClass({AveragePrice.class, ActionRouter.class})
 @EnableConfigurationProperties(RemoteAnalyticsProperties.class)
 public class AnalyticsRestClientAutoConfiguration {
 

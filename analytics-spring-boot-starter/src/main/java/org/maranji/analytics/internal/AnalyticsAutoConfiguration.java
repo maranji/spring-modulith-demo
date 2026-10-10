@@ -5,11 +5,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.AveragePrice;
 import org.maranji.actionrouter.ActionRouter;
 
 @AutoConfiguration
-@ConditionalOnClass({AverageQuery.class, ActionRouter.class})
+@ConditionalOnClass({AveragePrice.class, ActionRouter.class})
 public class AnalyticsAutoConfiguration {
 
     @Bean

@@ -3,9 +3,9 @@ package org.maranji.marketdata.internal;
 import java.util.Set;
 
 import org.maranji.actionrouter.ActionHandler;
-import org.maranji.marketdata.actions.AvailableAssetsQuery;
+import org.maranji.marketdata.actions.AvailableAssets;
 
-class AvailableAssetsQueryHandler implements ActionHandler<AvailableAssetsQuery, Set<String>> {
+class AvailableAssetsQueryHandler implements ActionHandler<AvailableAssets, Set<String>> {
 
     private final MarketDataStore store;
 
@@ -14,7 +14,7 @@ class AvailableAssetsQueryHandler implements ActionHandler<AvailableAssetsQuery,
     }
 
     @Override
-    public Set<String> handle(AvailableAssetsQuery query) {
+    public Set<String> handle(AvailableAssets query) {
         return store.availableAssets();
     }
 }

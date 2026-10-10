@@ -10,7 +10,7 @@ import org.maranji.analytics.actions.InsufficientDataException;
 import org.maranji.analytics.actions.PriceStatistics;
 import org.maranji.analytics.actions.StatisticType;
 import org.maranji.actionrouter.ActionRouter;
-import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.AssetPrices;
 import org.maranji.marketdata.actions.PricePoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +31,7 @@ class AnalyticsCalculationServiceTest {
 
     @Test
     void computesAverageFromPricesReturnedByTheActionRouter() {
-        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new AssetPrices("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10")),
                 new PricePoint(LocalDate.of(2026, 1, 3), new BigDecimal("20"))
         ));
@@ -46,24 +46,24 @@ class AnalyticsCalculationServiceTest {
 
     @Test
     void cachesResultsUntilCacheIsCleared() {
-        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new AssetPrices("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10")),
                 new PricePoint(LocalDate.of(2026, 1, 3), new BigDecimal("20"))
         ));
 
         service.average("AAPL", FROM, TO);
         service.average("AAPL", FROM, TO);
-        verify(actionRouter, times(1)).route(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(1)).route(new AssetPrices("AAPL", FROM, TO));
 
         cache.clear();
         service.average("AAPL", FROM, TO);
 
-        verify(actionRouter, times(2)).route(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(2)).route(new AssetPrices("AAPL", FROM, TO));
     }
 
     @Test
     void throwsWhenNoPricesAvailableForAverage() {
-        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of());
+        when(actionRouter.route(new AssetPrices("AAPL", FROM, TO))).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.average("AAPL", FROM, TO))
                 .isInstanceOf(InsufficientDataException.class);
@@ -71,7 +71,7 @@ class AnalyticsCalculationServiceTest {
 
     @Test
     void standardDeviationRequiresAtLeastTwoPoints() {
-        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new AssetPrices("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10"))
         ));
 

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.AveragePrice;
 import org.maranji.analytics.actions.PriceStatistics;
 import org.maranji.analytics.actions.StandardDeviationQuery;
 import org.maranji.analytics.actions.StatisticType;
@@ -26,7 +26,7 @@ class AnalyticsQueryHandlersTest {
         PriceStatistics expected = new PriceStatistics("AAPL", FROM, TO, StatisticType.AVERAGE, 15.0, 2);
         when(service.average("AAPL", FROM, TO)).thenReturn(expected);
 
-        PriceStatistics result = new AverageQueryHandler(service).handle(new AverageQuery("AAPL", FROM, TO));
+        PriceStatistics result = new AverageQueryHandler(service).handle(new AveragePrice("AAPL", FROM, TO));
 
         assertThat(result).isEqualTo(expected);
     }

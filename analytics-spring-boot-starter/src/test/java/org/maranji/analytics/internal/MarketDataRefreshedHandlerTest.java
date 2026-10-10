@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import org.maranji.actionrouter.ActionRouter;
-import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.AssetPrices;
 import org.maranji.marketdata.actions.MarketDataRefreshed;
 import org.maranji.marketdata.actions.PricePoint;
 
@@ -31,19 +31,19 @@ class MarketDataRefreshedHandlerTest {
 
     @Test
     void invalidatesCacheOnMarketDataRefreshed() {
-        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new AssetPrices("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10")),
                 new PricePoint(LocalDate.of(2026, 1, 3), new BigDecimal("20"))
         ));
 
         service.average("AAPL", FROM, TO);
         service.average("AAPL", FROM, TO);
-        verify(actionRouter, times(1)).route(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(1)).route(new AssetPrices("AAPL", FROM, TO));
 
         handler.handle(new MarketDataRefreshed(Set.of("AAPL"), Instant.now()));
         service.average("AAPL", FROM, TO);
 
-        verify(actionRouter, times(2)).route(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(2)).route(new AssetPrices("AAPL", FROM, TO));
     }
 
     @Test

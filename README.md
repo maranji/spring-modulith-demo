@@ -32,10 +32,10 @@ action-router-demo/
 | **action-core** | `Action<R>`, `Info` | **nothing** |
 | **action-router** | `ActionRouter`, `ActionHandler<C,R>`, `InfoHandler<I>` | `action-core` |
 | **action-router-spring-boot-starter** | `SimpleActionRouter`: collects every handler, checks at startup that none is missing or duplicated, and dispatches by type | `action-router` |
-| **market-data-action** | `FindPricesQuery`, `AvailableAssetsQuery`, `RefreshMarketDataCommand`, `MarketDataRefreshed` (info), `PricePoint`, `AssetNotFoundException` | `action-core` |
+| **market-data-action** | `AssetPrices`, `AvailableAssets`, `RefreshMarketData`, `MarketDataRefreshed` (info), `PricePoint`, `AssetNotFoundException` | `action-core` |
 | **market-data-spring-boot-starter** | `MarketDataStore` + 3 `ActionHandler`s (one per action) | `action-router`, `market-data-action` |
-| **analytics-action** | `AverageQuery`, `StandardDeviationQuery`, `PriceStatistics`, `StatisticType`, `InsufficientDataException` | `action-core` (not even `market-data-action`) |
-| **analytics-spring-boot-starter** | `AnalyticsCalculationService`, `AnalyticsCache` + 2 `ActionHandler`s + 1 `InfoHandler` | `action-router`, `analytics-action`, `market-data-action` (only for the `FindPricesQuery`/`PricePoint`/`MarketDataRefreshed` types) |
+| **analytics-action** | `AveragePrice`, `StandardDeviationQuery`, `PriceStatistics`, `StatisticType`, `InsufficientDataException` | `action-core` (not even `market-data-action`) |
+| **analytics-spring-boot-starter** | `AnalyticsCalculationService`, `AnalyticsCache` + 2 `ActionHandler`s + 1 `InfoHandler` | `action-router`, `analytics-action`, `market-data-action` (only for the `AssetPrices`/`PricePoint`/`MarketDataRefreshed` types) |
 | **analytics-restclient-starter** | `RemoteAnalyticsClient` (calls an external Analytics service over HTTP) + 2 alternative `ActionHandler`s | `action-router`, `analytics-action`, `market-data-action` (only for the exception) |
 | **app** | REST controllers, error handling | `action-router`, `market-data-action`, `analytics-action`, `action-router-spring-boot-starter`, `market-data-spring-boot-starter` **+** one of the two Analytics implementations |
 
@@ -66,7 +66,7 @@ public interface InfoHandler<I extends Info> { void handle(I info); }
 | Response | `R`, declared by the action | none |
 | Handler exception | propagates to the caller | only logged: it doesn't reach the caller and the following handlers are still called |
 
-Every action declares its own response type (`Action<Void>` for commands, such as `RefreshMarketDataCommand`); a handler whose response type doesn't match the action's is a compile error. Commands and infos are deliberately kept distinct: a command must have its single handler, and the router must be able to report when it's missing; an info may interest nobody. The name `Info` (rather than "event") is deliberate: the POC doesn't want to suggest an event-driven architecture, just a one-to-many notification on the same router.
+Every action declares its own response type (`Action<Void>` for commands, such as `RefreshMarketData`); a handler whose response type doesn't match the action's is a compile error. Commands and infos are deliberately kept distinct: a command must have its single handler, and the router must be able to report when it's missing; an info may interest nobody. The name `Info` (rather than "event") is deliberate: the POC doesn't want to suggest an event-driven architecture, just a one-to-many notification on the same router.
 
 ### How `SimpleActionRouter` works
 
@@ -103,7 +103,7 @@ PriceStatistics average(@PathVariable String symbol,
 }
 ```
 
-`AverageQuery` and `PriceStatistics` are the only information the caller and the implementation need to share.
+`AveragePrice` and `PriceStatistics` are the only information the caller and the implementation need to share.
 
 ### Only `build.gradle` decides who handles each action
 

@@ -7,10 +7,10 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import org.maranji.marketdata.actions.AvailableAssetsQuery;
-import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.AvailableAssets;
+import org.maranji.marketdata.actions.AssetPrices;
 import org.maranji.marketdata.actions.PricePoint;
-import org.maranji.marketdata.actions.RefreshMarketDataCommand;
+import org.maranji.marketdata.actions.RefreshMarketData;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,7 +29,7 @@ class MarketDataQueryHandlersTest {
         List<PricePoint> prices = List.of(new PricePoint(from, new BigDecimal("10")));
         when(store.findPrices("AAPL", from, to)).thenReturn(prices);
 
-        List<PricePoint> result = new FindPricesQueryHandler(store).handle(new FindPricesQuery("AAPL", from, to));
+        List<PricePoint> result = new FindPricesQueryHandler(store).handle(new AssetPrices("AAPL", from, to));
 
         assertThat(result).isEqualTo(prices);
     }
@@ -38,14 +38,14 @@ class MarketDataQueryHandlersTest {
     void availableAssetsQueryHandlerDelegatesToTheStore() {
         when(store.availableAssets()).thenReturn(Set.of("AAPL", "MSFT"));
 
-        Set<String> result = new AvailableAssetsQueryHandler(store).handle(new AvailableAssetsQuery());
+        Set<String> result = new AvailableAssetsQueryHandler(store).handle(new AvailableAssets());
 
         assertThat(result).containsExactlyInAnyOrder("AAPL", "MSFT");
     }
 
     @Test
     void refreshMarketDataCommandHandlerDelegatesToTheStore() {
-        Void result = new RefreshMarketDataCommandHandler(store).handle(new RefreshMarketDataCommand());
+        Void result = new RefreshMarketDataCommandHandler(store).handle(new RefreshMarketData());
 
         assertThat(result).isNull();
         verify(store).refresh();

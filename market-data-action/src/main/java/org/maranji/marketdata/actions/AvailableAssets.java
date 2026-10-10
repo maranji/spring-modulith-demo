@@ -4,5 +4,5 @@ import java.util.Set;
 
 import org.maranji.actioncore.Action;
 
-public record AvailableAssetsQuery() implements Action<Set<String>> {
+public record AvailableAssets() implements Action<Set<String>> {
 }
