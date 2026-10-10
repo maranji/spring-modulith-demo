@@ -1,9 +1,9 @@
 package org.maranji.marketdata.internal;
 
-import org.maranji.contractbus.ContractHandler;
-import org.maranji.marketdata.contracts.RefreshMarketDataCommand;
+import org.maranji.actionrouter.ActionHandler;
+import org.maranji.marketdata.actions.RefreshMarketDataCommand;
 
-class RefreshMarketDataCommandHandler implements ContractHandler<RefreshMarketDataCommand, Void> {
+class RefreshMarketDataCommandHandler implements ActionHandler<RefreshMarketDataCommand, Void> {
 
     private final MarketDataStore store;
 

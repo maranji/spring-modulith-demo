@@ -2,10 +2,10 @@ package org.maranji.marketdata.internal;
 
 import java.util.Set;
 
-import org.maranji.contractbus.ContractHandler;
-import org.maranji.marketdata.contracts.AvailableAssetsQuery;
+import org.maranji.actionrouter.ActionHandler;
+import org.maranji.marketdata.actions.AvailableAssetsQuery;
 
-class AvailableAssetsQueryHandler implements ContractHandler<AvailableAssetsQuery, Set<String>> {
+class AvailableAssetsQueryHandler implements ActionHandler<AvailableAssetsQuery, Set<String>> {
 
     private final MarketDataStore store;
 

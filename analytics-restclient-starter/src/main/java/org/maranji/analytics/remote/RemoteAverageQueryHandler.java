@@ -1,10 +1,10 @@
 package org.maranji.analytics.remote;
 
-import org.maranji.analytics.contracts.AverageQuery;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.contractbus.ContractHandler;
+import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.actionrouter.ActionHandler;
 
-class RemoteAverageQueryHandler implements ContractHandler<AverageQuery, PriceStatistics> {
+class RemoteAverageQueryHandler implements ActionHandler<AverageQuery, PriceStatistics> {
 
     private final RemoteAnalyticsClient client;
 

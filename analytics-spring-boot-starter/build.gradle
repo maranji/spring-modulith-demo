@@ -1,10 +1,10 @@
 dependencies {
     // 'implementation', not 'api': nothing in this starter's public surface re-exposes these types.
-    implementation project(':contract-bus')
-    implementation project(':analytics-contract')
+    implementation project(':action-router')
+    implementation project(':analytics-action')
 
-    // Only for the FindPricesQuery/PricePoint/MarketDataRefreshed types carried by the bus.
-    implementation project(':market-data-contract')
+    // Only for the FindPricesQuery/PricePoint/MarketDataRefreshed types carried by the router.
+    implementation project(':market-data-action')
 
     api 'org.springframework.boot:spring-boot-starter'
     api 'org.springframework.boot:spring-boot-autoconfigure'

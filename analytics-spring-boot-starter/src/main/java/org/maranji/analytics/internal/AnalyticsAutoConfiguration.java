@@ -5,11 +5,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
-import org.maranji.analytics.contracts.AverageQuery;
-import org.maranji.contractbus.ContractBus;
+import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.actionrouter.ActionRouter;
 
 @AutoConfiguration
-@ConditionalOnClass({AverageQuery.class, ContractBus.class})
+@ConditionalOnClass({AverageQuery.class, ActionRouter.class})
 public class AnalyticsAutoConfiguration {
 
     @Bean
@@ -20,8 +20,8 @@ public class AnalyticsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    AnalyticsCalculationService analyticsCalculationService(ContractBus contractBus, AnalyticsCache cache) {
-        return new AnalyticsCalculationService(contractBus, cache);
+    AnalyticsCalculationService analyticsCalculationService(ActionRouter actionRouter, AnalyticsCache cache) {
+        return new AnalyticsCalculationService(actionRouter, cache);
     }
 
     @Bean

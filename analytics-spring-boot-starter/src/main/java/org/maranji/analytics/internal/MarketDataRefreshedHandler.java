@@ -3,8 +3,8 @@ package org.maranji.analytics.internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.maranji.contractbus.InfoHandler;
-import org.maranji.marketdata.contracts.MarketDataRefreshed;
+import org.maranji.actionrouter.InfoHandler;
+import org.maranji.marketdata.actions.MarketDataRefreshed;
 
 class MarketDataRefreshedHandler implements InfoHandler<MarketDataRefreshed> {
 

@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import org.maranji.analytics.contracts.AverageQuery;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StandardDeviationQuery;
-import org.maranji.analytics.contracts.StatisticType;
+import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StandardDeviationQuery;
+import org.maranji.analytics.actions.StatisticType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

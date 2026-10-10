@@ -5,10 +5,10 @@ import java.time.LocalDate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import org.maranji.analytics.contracts.InsufficientDataException;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StatisticType;
-import org.maranji.marketdata.contracts.AssetNotFoundException;
+import org.maranji.analytics.actions.InsufficientDataException;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StatisticType;
+import org.maranji.marketdata.actions.AssetNotFoundException;
 
 /**
  * Translates HTTP 404/422 into the same domain exceptions as the local

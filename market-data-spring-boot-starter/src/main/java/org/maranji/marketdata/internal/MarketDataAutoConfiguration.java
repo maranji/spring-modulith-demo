@@ -9,8 +9,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.maranji.contractbus.ContractBus;
-import org.maranji.marketdata.contracts.FindPricesQuery;
+import org.maranji.actionrouter.ActionRouter;
+import org.maranji.marketdata.actions.FindPricesQuery;
 
 /**
  * No {@link ResourcePatternResolver} bean is needed: every
@@ -27,8 +27,8 @@ public class MarketDataAutoConfiguration {
     MarketDataStore marketDataStore(ResourcePatternResolver resourceResolver,
                                      ObjectMapper objectMapper,
                                      MarketDataProperties properties,
-                                     ContractBus contractBus) {
-        return new MarketDataStore(resourceResolver, objectMapper, properties, contractBus);
+                                     ActionRouter actionRouter) {
+        return new MarketDataStore(resourceResolver, objectMapper, properties, actionRouter);
     }
 
     @Bean

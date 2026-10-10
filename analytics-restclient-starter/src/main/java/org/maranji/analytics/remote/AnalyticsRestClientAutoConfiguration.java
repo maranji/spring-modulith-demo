@@ -6,15 +6,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 
-import org.maranji.analytics.contracts.AverageQuery;
-import org.maranji.contractbus.ContractBus;
+import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.actionrouter.ActionRouter;
 
 /**
  * Must not be combined with {@code analytics-spring-boot-starter}: both register
- * handlers for the same contracts and the bus would fail at startup.
+ * handlers for the same actions and the router would fail at startup.
  */
 @AutoConfiguration
-@ConditionalOnClass({AverageQuery.class, ContractBus.class})
+@ConditionalOnClass({AverageQuery.class, ActionRouter.class})
 @EnableConfigurationProperties(RemoteAnalyticsProperties.class)
 public class AnalyticsRestClientAutoConfiguration {
 

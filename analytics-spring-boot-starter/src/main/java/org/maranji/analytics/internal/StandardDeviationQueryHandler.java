@@ -1,10 +1,10 @@
 package org.maranji.analytics.internal;
 
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StandardDeviationQuery;
-import org.maranji.contractbus.ContractHandler;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StandardDeviationQuery;
+import org.maranji.actionrouter.ActionHandler;
 
-class StandardDeviationQueryHandler implements ContractHandler<StandardDeviationQuery, PriceStatistics> {
+class StandardDeviationQueryHandler implements ActionHandler<StandardDeviationQuery, PriceStatistics> {
 
     private final AnalyticsCalculationService service;
 

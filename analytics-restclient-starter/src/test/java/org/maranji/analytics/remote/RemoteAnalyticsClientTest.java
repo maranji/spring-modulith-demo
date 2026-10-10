@@ -10,9 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import org.maranji.analytics.contracts.InsufficientDataException;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.marketdata.contracts.AssetNotFoundException;
+import org.maranji.analytics.actions.InsufficientDataException;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.marketdata.actions.AssetNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -1,7 +1,7 @@
 dependencies {
-    // 'implementation', not 'api': consumers depend on market-data-contract directly, not transitively.
-    implementation project(':contract-bus')
-    implementation project(':market-data-contract')
+    // 'implementation', not 'api': consumers depend on market-data-action directly, not transitively.
+    implementation project(':action-router')
+    implementation project(':market-data-action')
 
     api 'org.springframework.boot:spring-boot-starter'
     api 'org.springframework.boot:spring-boot-autoconfigure'

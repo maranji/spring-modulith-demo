@@ -10,10 +10,10 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.maranji.contractbus.ContractBus;
-import org.maranji.marketdata.contracts.AssetNotFoundException;
-import org.maranji.marketdata.contracts.MarketDataRefreshed;
-import org.maranji.marketdata.contracts.PricePoint;
+import org.maranji.actionrouter.ActionRouter;
+import org.maranji.marketdata.actions.AssetNotFoundException;
+import org.maranji.marketdata.actions.MarketDataRefreshed;
+import org.maranji.marketdata.actions.PricePoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class MarketDataStoreTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private final ContractBus contractBus = mock(ContractBus.class);
+    private final ActionRouter actionRouter = mock(ActionRouter.class);
     private MarketDataStore store;
 
     @BeforeEach
@@ -34,7 +34,7 @@ class MarketDataStoreTest {
         properties.setDirectory("classpath:test-data/");
 
         store = new MarketDataStore(
-                new PathMatchingResourcePatternResolver(), objectMapper, properties, contractBus);
+                new PathMatchingResourcePatternResolver(), objectMapper, properties, actionRouter);
         store.init();
     }
 
@@ -51,7 +51,7 @@ class MarketDataStoreTest {
 
     @Test
     void initialLoadDoesNotBroadcastAnInfo() {
-        verifyNoInteractions(contractBus);
+        verifyNoInteractions(actionRouter);
     }
 
     @Test
@@ -72,6 +72,6 @@ class MarketDataStoreTest {
     void refreshReloadsDataAndBroadcastsInfo() {
         store.refresh();
 
-        verify(contractBus).broadcast(any(MarketDataRefreshed.class));
+        verify(actionRouter).broadcast(any(MarketDataRefreshed.class));
     }
 }

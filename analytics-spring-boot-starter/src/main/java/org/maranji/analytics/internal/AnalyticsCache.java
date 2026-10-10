@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StatisticType;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StatisticType;
 
 /**
  * A separate bean, not a field of {@link AnalyticsCalculationService}, so the

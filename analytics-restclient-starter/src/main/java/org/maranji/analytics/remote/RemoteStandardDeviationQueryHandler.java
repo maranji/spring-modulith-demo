@@ -1,10 +1,10 @@
 package org.maranji.analytics.remote;
 
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StandardDeviationQuery;
-import org.maranji.contractbus.ContractHandler;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StandardDeviationQuery;
+import org.maranji.actionrouter.ActionHandler;
 
-class RemoteStandardDeviationQueryHandler implements ContractHandler<StandardDeviationQuery, PriceStatistics> {
+class RemoteStandardDeviationQueryHandler implements ActionHandler<StandardDeviationQuery, PriceStatistics> {
 
     private final RemoteAnalyticsClient client;
 

@@ -5,8 +5,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import org.maranji.analytics.contracts.InsufficientDataException;
-import org.maranji.marketdata.contracts.AssetNotFoundException;
+import org.maranji.analytics.actions.InsufficientDataException;
+import org.maranji.marketdata.actions.AssetNotFoundException;
 
 @RestControllerAdvice
 class GlobalExceptionHandler {

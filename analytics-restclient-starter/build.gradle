@@ -1,10 +1,10 @@
 dependencies {
     // 'implementation', not 'api': nothing in this starter's public surface re-exposes these types.
-    implementation project(':contract-bus')
-    implementation project(':analytics-contract')
+    implementation project(':action-router')
+    implementation project(':analytics-action')
 
     // Only to translate HTTP errors into the same domain exceptions as the local implementation.
-    implementation project(':market-data-contract')
+    implementation project(':market-data-action')
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'

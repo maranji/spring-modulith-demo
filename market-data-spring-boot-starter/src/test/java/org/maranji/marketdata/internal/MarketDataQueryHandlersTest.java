@@ -7,10 +7,10 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import org.maranji.marketdata.contracts.AvailableAssetsQuery;
-import org.maranji.marketdata.contracts.FindPricesQuery;
-import org.maranji.marketdata.contracts.PricePoint;
-import org.maranji.marketdata.contracts.RefreshMarketDataCommand;
+import org.maranji.marketdata.actions.AvailableAssetsQuery;
+import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.PricePoint;
+import org.maranji.marketdata.actions.RefreshMarketDataCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

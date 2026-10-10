@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.maranji.analytics.contracts.InsufficientDataException;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StatisticType;
-import org.maranji.contractbus.ContractBus;
-import org.maranji.marketdata.contracts.FindPricesQuery;
-import org.maranji.marketdata.contracts.PricePoint;
+import org.maranji.analytics.actions.InsufficientDataException;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StatisticType;
+import org.maranji.actionrouter.ActionRouter;
+import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.PricePoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,13 +25,13 @@ class AnalyticsCalculationServiceTest {
     private static final LocalDate FROM = LocalDate.of(2026, 1, 1);
     private static final LocalDate TO = LocalDate.of(2026, 1, 31);
 
-    private final ContractBus contractBus = mock(ContractBus.class);
+    private final ActionRouter actionRouter = mock(ActionRouter.class);
     private final AnalyticsCache cache = new AnalyticsCache();
-    private final AnalyticsCalculationService service = new AnalyticsCalculationService(contractBus, cache);
+    private final AnalyticsCalculationService service = new AnalyticsCalculationService(actionRouter, cache);
 
     @Test
-    void computesAverageFromPricesReturnedByTheContractBus() {
-        when(contractBus.send(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+    void computesAverageFromPricesReturnedByTheActionRouter() {
+        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10")),
                 new PricePoint(LocalDate.of(2026, 1, 3), new BigDecimal("20"))
         ));
@@ -46,24 +46,24 @@ class AnalyticsCalculationServiceTest {
 
     @Test
     void cachesResultsUntilCacheIsCleared() {
-        when(contractBus.send(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10")),
                 new PricePoint(LocalDate.of(2026, 1, 3), new BigDecimal("20"))
         ));
 
         service.average("AAPL", FROM, TO);
         service.average("AAPL", FROM, TO);
-        verify(contractBus, times(1)).send(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(1)).route(new FindPricesQuery("AAPL", FROM, TO));
 
         cache.clear();
         service.average("AAPL", FROM, TO);
 
-        verify(contractBus, times(2)).send(new FindPricesQuery("AAPL", FROM, TO));
+        verify(actionRouter, times(2)).route(new FindPricesQuery("AAPL", FROM, TO));
     }
 
     @Test
     void throwsWhenNoPricesAvailableForAverage() {
-        when(contractBus.send(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of());
+        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.average("AAPL", FROM, TO))
                 .isInstanceOf(InsufficientDataException.class);
@@ -71,7 +71,7 @@ class AnalyticsCalculationServiceTest {
 
     @Test
     void standardDeviationRequiresAtLeastTwoPoints() {
-        when(contractBus.send(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
+        when(actionRouter.route(new FindPricesQuery("AAPL", FROM, TO))).thenReturn(List.of(
                 new PricePoint(LocalDate.of(2026, 1, 2), new BigDecimal("10"))
         ));
 

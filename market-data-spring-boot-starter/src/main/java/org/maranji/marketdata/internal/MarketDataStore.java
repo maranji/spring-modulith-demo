@@ -20,10 +20,10 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.maranji.contractbus.ContractBus;
-import org.maranji.marketdata.contracts.AssetNotFoundException;
-import org.maranji.marketdata.contracts.MarketDataRefreshed;
-import org.maranji.marketdata.contracts.PricePoint;
+import org.maranji.actionrouter.ActionRouter;
+import org.maranji.marketdata.actions.AssetNotFoundException;
+import org.maranji.marketdata.actions.MarketDataRefreshed;
+import org.maranji.marketdata.actions.PricePoint;
 
 import jakarta.annotation.PostConstruct;
 
@@ -38,18 +38,18 @@ class MarketDataStore {
     private final ResourcePatternResolver resourceResolver;
     private final ObjectMapper objectMapper;
     private final MarketDataProperties properties;
-    private final ContractBus contractBus;
+    private final ActionRouter actionRouter;
 
     private volatile Map<String, List<PricePoint>> pricesByAsset = Map.of();
 
     MarketDataStore(ResourcePatternResolver resourceResolver,
                      ObjectMapper objectMapper,
                      MarketDataProperties properties,
-                     ContractBus contractBus) {
+                     ActionRouter actionRouter) {
         this.resourceResolver = resourceResolver;
         this.objectMapper = objectMapper;
         this.properties = properties;
-        this.contractBus = contractBus;
+        this.actionRouter = actionRouter;
     }
 
     // No Info broadcast here: broadcasting would index every handler, including those that
@@ -91,7 +91,7 @@ class MarketDataStore {
 
     private synchronized void doRefresh() {
         Set<String> assets = load();
-        contractBus.broadcast(new MarketDataRefreshed(assets, Instant.now()));
+        actionRouter.broadcast(new MarketDataRefreshed(assets, Instant.now()));
     }
 
     private synchronized Set<String> load() {

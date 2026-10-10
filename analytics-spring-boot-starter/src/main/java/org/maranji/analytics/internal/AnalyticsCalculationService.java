@@ -5,20 +5,20 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
-import org.maranji.analytics.contracts.InsufficientDataException;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StatisticType;
-import org.maranji.contractbus.ContractBus;
-import org.maranji.marketdata.contracts.FindPricesQuery;
-import org.maranji.marketdata.contracts.PricePoint;
+import org.maranji.analytics.actions.InsufficientDataException;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StatisticType;
+import org.maranji.actionrouter.ActionRouter;
+import org.maranji.marketdata.actions.FindPricesQuery;
+import org.maranji.marketdata.actions.PricePoint;
 
 class AnalyticsCalculationService {
 
-    private final ContractBus contractBus;
+    private final ActionRouter actionRouter;
     private final AnalyticsCache cache;
 
-    AnalyticsCalculationService(ContractBus contractBus, AnalyticsCache cache) {
-        this.contractBus = contractBus;
+    AnalyticsCalculationService(ActionRouter actionRouter, AnalyticsCache cache) {
+        this.actionRouter = actionRouter;
         this.cache = cache;
     }
 
@@ -37,7 +37,7 @@ class AnalyticsCalculationService {
     }
 
     private PriceStatistics doCompute(String asset, LocalDate from, LocalDate to, StatisticType type) {
-        List<PricePoint> pricePoints = contractBus.send(new FindPricesQuery(asset, from, to));
+        List<PricePoint> pricePoints = actionRouter.route(new FindPricesQuery(asset, from, to));
         List<BigDecimal> prices = pricePoints.stream().map(PricePoint::price).toList();
 
         int minimumSampleSize = type == StatisticType.STANDARD_DEVIATION ? 2 : 1;

@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.maranji.analytics.contracts.AverageQuery;
-import org.maranji.analytics.contracts.PriceStatistics;
-import org.maranji.analytics.contracts.StandardDeviationQuery;
-import org.maranji.contractbus.ContractBus;
+import org.maranji.analytics.actions.AverageQuery;
+import org.maranji.analytics.actions.PriceStatistics;
+import org.maranji.analytics.actions.StandardDeviationQuery;
+import org.maranji.actionrouter.ActionRouter;
 
 @RestController
 @RequestMapping("/api/assets/{symbol}/statistics")
 class PriceStatisticsController {
 
-    private final ContractBus contractBus;
+    private final ActionRouter actionRouter;
 
-    PriceStatisticsController(ContractBus contractBus) {
-        this.contractBus = contractBus;
+    PriceStatisticsController(ActionRouter actionRouter) {
+        this.actionRouter = actionRouter;
     }
 
     @GetMapping("/average")
@@ -29,7 +29,7 @@ class PriceStatisticsController {
                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         validateRange(from, to);
-        return contractBus.send(new AverageQuery(symbol, from, to));
+        return actionRouter.route(new AverageQuery(symbol, from, to));
     }
 
     @GetMapping("/standard-deviation")
@@ -37,7 +37,7 @@ class PriceStatisticsController {
                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         validateRange(from, to);
-        return contractBus.send(new StandardDeviationQuery(symbol, from, to));
+        return actionRouter.route(new StandardDeviationQuery(symbol, from, to));
     }
 
     private void validateRange(LocalDate from, LocalDate to) {

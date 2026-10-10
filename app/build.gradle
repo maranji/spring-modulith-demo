@@ -6,15 +6,15 @@ plugins {
 def analyticsMode = (findProperty('analyticsMode') ?: 'local').toString()
 
 dependencies {
-    implementation project(':contract-bus')
-    implementation project(':market-data-contract')
-    implementation project(':analytics-contract')
+    implementation project(':action-router')
+    implementation project(':market-data-action')
+    implementation project(':analytics-action')
 
-    implementation project(':contract-bus-spring-boot-starter')
+    implementation project(':action-router-spring-boot-starter')
 
     implementation project(':market-data-spring-boot-starter')
 
-    // Mutually exclusive: both on the classpath would register two handlers for the same contract.
+    // Mutually exclusive: both on the classpath would register two handlers for the same action.
     if (analyticsMode == 'remote') {
         implementation project(':analytics-restclient-starter')
     } else {

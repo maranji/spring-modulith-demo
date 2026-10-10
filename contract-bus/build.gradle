@@ -1,6 +1,0 @@
-dependencies {
-    api project(':base-contract')
-
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.assertj:assertj-core'
-}
